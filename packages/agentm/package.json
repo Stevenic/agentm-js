@@ -1,0 +1,27 @@
+{
+    "name": "agentm",
+    "version": "0.1.0",
+    "description": "A library of Micro Agents that make it easy to add reliable intelligence to any application.",
+    "author": "Steven Ickman <steve@awarity.ai>",
+    "types": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "type": "commonjs",
+    "repository": "github:stevenic/agentm-js",
+    "license": "MIT",
+    "packageManager": "yarn@4.4.1",
+    "files": [
+        "*"
+    ],
+    "scripts": {
+        "build": "tsc -b"
+    },
+    "dependencies": {
+        "@types/node": "^18.11.18",
+        "jsonschema": "^1.4.1",
+        "openai": "^4.57.0"
+    },
+    "devDependencies": {
+        "ts-node": "^10.9.2",
+        "typescript": "^4.8.2"
+    }
+}

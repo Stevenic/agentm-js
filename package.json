@@ -1,0 +1,14 @@
+{
+    "name": "agentm-project",
+    "version": "1.0.0",
+    "description": "A library of Micro Agents that make it easy to add reliable intelligence to any application.",
+    "author": "Steven Ickman <steve@awarity.ai>",
+    "main": "index.js",
+    "repository": "github:stevenic/agentm-js",
+    "license": "MIT",
+    "packageManager": "yarn@4.4.1",
+    "workspaces": [
+        "./packages/*",
+        "./examples"
+    ]
+}

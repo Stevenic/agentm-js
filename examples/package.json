@@ -1,0 +1,25 @@
+{
+    "name": "agentm-examples",
+    "version": "1.0.0",
+    "description": "AgentM usage examples.",
+    "author": "Steven Ickman <steve@awarity.ai>",
+    "main": "index.js",
+    "repository": "github:stevenic/agentm-js",
+    "license": "MIT",
+    "packageManager": "yarn@4.4.1",
+    "files": [
+        "*"
+    ],
+    "scripts": {
+        "start": "npx ts-node"
+    },
+    "dependencies": {
+        "@types/node": "^18.11.18",
+        "agentm": "0.1.0",
+        "dotenv": "^16.4.5"
+    },
+    "devDependencies": {
+        "ts-node": "^10.9.2",
+        "typescript": "^4.8.2"
+    }
+}

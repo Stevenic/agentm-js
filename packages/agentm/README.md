@@ -1,0 +1,3 @@
+# AgentM
+AgentM is a library of "Micro Agents" that make it easy to add reliable intelligence to any application. The philosiphy behind AgentM is that "Agents" should be mostly comprised of deterministic code with a sprinkle of LLM powered intelligence mixed in. Most existing Agent frameworks place the LLM at the center of the application as an orchestrator that calls a collection of tools. In an AgentM application, your code is the orchestrator and you only call a micro agent when you need to perform a task that requires intelligence. To make adding this intelligence to your code easy, the JavaScript version of AgentM surfaces these micro agents as a simple library of functions.
+   
