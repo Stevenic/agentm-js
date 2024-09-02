@@ -38,7 +38,7 @@ export type shouldContinue = () => Promise<boolean>|boolean;
 
 // Prompt Completions
 
-export type completePrompt<TValue> = (args: PromptCompletionArgs) => Promise<PromptCompletion<TValue>>;
+export type completePrompt<TValue = string> = (args: PromptCompletionArgs) => Promise<PromptCompletion<TValue>>;
 
 export interface PromptCompletionArgs {
     prompt: UserMessage;

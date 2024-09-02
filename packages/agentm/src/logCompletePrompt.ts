@@ -1,8 +1,14 @@
+import { CancelledError } from "./CancelledError";
 import { completePrompt } from "./types";
 
 export function logCompletePrompt<TValue>(completePrompt: completePrompt<TValue>, logDetails = false): completePrompt<TValue> {
     return async (args) => {
         const result = await completePrompt(args);
+
+        // Ignore cancellations
+        if (result.error instanceof CancelledError) {
+            return result;
+        }
 
         // Log completion
         if (result.completed) {

@@ -1,4 +1,4 @@
-import { logCompletePrompt, openai, reduceList } from "agentm";
+import { openai, reduceList } from "agentm";
 import * as dotenv from "dotenv";
 
 // Load environment variables from .env file
