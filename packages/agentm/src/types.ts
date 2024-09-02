@@ -21,9 +21,9 @@ export interface AgentArgs {
     parallelCompletions?: number;
 }
 
-export interface AgentCompletion<TResult> {
+export interface AgentCompletion<TValue> {
     completed: boolean;
-    value?: TResult;
+    value?: TValue;
     error?: Error;
 }
 
@@ -38,7 +38,7 @@ export type shouldContinue = () => Promise<boolean>|boolean;
 
 // Prompt Completions
 
-export type completePrompt<TContent = string> = (args: PromptCompletionArgs) => Promise<AgentCompletion<TContent>>;
+export type completePrompt<TValue> = (args: PromptCompletionArgs) => Promise<PromptCompletion<TValue>>;
 
 export interface PromptCompletionArgs {
     prompt: UserMessage;
@@ -47,6 +47,18 @@ export interface PromptCompletionArgs {
     temperature?: number;
     useJSON?: boolean;
     jsonSchema?: JsonSchema;
+}
+
+export interface PromptCompletion<TValue> extends AgentCompletion<TValue> {
+    details?: PromptCompletionDetails;
+}
+
+export type PromptCompletionFinishReason = 'stop'|'length'|'filtered'|'tool_call'|'unknown';
+
+export interface PromptCompletionDetails {
+    inputTokens: number;
+    outputTokens: number;
+    finishReason: PromptCompletionFinishReason;
 }
 
 export interface JsonSchema {
