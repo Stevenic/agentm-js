@@ -27,9 +27,6 @@ export async function sortList<TValue extends {}>(args: SortListArgs<TValue>): P
     // Sort list
     let value: Array<TValue>;
     try {
-        let requests = 0;
-        let inputTokens = 0;
-        let outputTokens = 0;
         const comparer = async (a: TValue, b: TValue) => {
             // Compose prompt
             const prompt: UserMessage = {
@@ -43,10 +40,6 @@ export async function sortList<TValue extends {}>(args: SortListArgs<TValue>): P
             if (!result.completed) {
                 throw result.error;
             }
-
-            requests++;
-            inputTokens += result.details?.inputTokens ?? 0;
-            outputTokens += result.details?.outputTokens ?? 0;
 
             if (args.logExplanations) {
                 console.log(`\x1b[32m${a}\x1b[0m is ${result.value!.sort_item_a} \x1b[32m${b}\x1b[0m because \x1b[32m${result.value!.explanation}\x1b[0m\n`);
@@ -62,7 +55,6 @@ export async function sortList<TValue extends {}>(args: SortListArgs<TValue>): P
             }
         };
         value = await mergeSort(list, comparer);
-        console.log(`Completed ${requests} requests with ${inputTokens} input tokens and ${outputTokens} output tokens.`);
     } catch (err: unknown) {
         return { completed: false, error: err as Error };
     }
@@ -93,8 +85,7 @@ const itemPrompt =
 {{a}}
 
 <ITEM_B>
-{{b}}
-`;
+{{b}}`;
 
 async function mergeSort<TValue>(list: Array<TValue>, comparer: (a: TValue, b: TValue) => Promise<number>): Promise<Array<TValue>> {
     // Check for empty or single item list
