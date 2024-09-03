@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { completePrompt, PromptCompletion, PromptCompletionArgs, PromptCompletionDetails, PromptCompletionFinishReason, Tokenizer } from "../types";
 import { RequestError } from "../RequestError";
-import { encode as encode200k, decode as decode200k } from "gpt-tokenizer/esm/model/gpt-4o";
+import { encode as encode200k, decode as decode200k } from "gpt-tokenizer/cjs/model/gpt-4o";
 import { encode as encode100k, decode as decode100k } from "gpt-tokenizer";
 
 /**
