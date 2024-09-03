@@ -2,33 +2,89 @@ import OpenAI from "openai";
 import { completePrompt, PromptCompletion, PromptCompletionArgs, PromptCompletionDetails, PromptCompletionFinishReason } from "../types";
 import { RequestError } from "../RequestError";
 
+/**
+ * Arguments to configure an OpenAI chat model.
+ */
 export interface OpenaiArgs {
+    /**
+     * OpenAI API key to use for completions.
+     */
     apiKey: string;
+
+    /**
+     * Model to use for completions.
+     */
     model: string;
+
+    /**
+     * Optional. Base URL for the OpenAI API.
+     */
     baseURL?: string;
+
+    /**
+     * Optional. ID of the organization making the request.
+     */
     organization?: string;
+
+    /**
+     * Optional. ID of the project to use for requests.
+     */
     project?: string;
+
+    /**
+     * Optional. Default temperature the model should use for sampling completions.
+     * @remarks
+     * Defaults to 0.0.
+     */
+    temperature?: number;
+
+    /**
+     * Optional. Default maximum number of tokens the model should return.
+     * @remarks
+     * Defaults to 1000.
+     */
+    maxTokens?: number;
 }
 
+/**
+ * OpenAI extended completion arguments for chat models.
+ */
 export interface OpenAICompletionArgs extends PromptCompletionArgs {
+    /**
+     * OpenAI client to use for completions.
+     */
     client: OpenAI;
+
+    /**
+     * Model to use for completions.
+     */
     model: string;
 }
 
+/**
+ * Creates a completion function for OpenAI chat models.
+ * @param args Arguments for the OpenAI completion function.
+ * @returns A prompt completion function that can call an OpenAI chat model.
+ */
 export function openai(args: OpenaiArgs): completePrompt<any> {
-    const { apiKey, model, baseURL, organization, project } = args;
+    const { apiKey, model, baseURL, organization, project, temperature, maxTokens } = args;
 
     const client = new OpenAI({ apiKey, baseURL, organization, project });
 
     return  (args) => {
         if (args.useJSON) { 
-            return openaiJsonChatCompletion({ client, model, ...args });
+            return openaiJsonChatCompletion({ client, model, temperature, maxTokens, ...args });
         } else {
-            return openaiChatCompletion({ client, model, ...args});
+            return openaiChatCompletion({ client, model, temperature, maxTokens, ...args});
         }
     };
 }
 
+/**
+ * Performs a text completion using an OpenAI chat model.
+ * @param args Arguments for the OpenAI chat completion.
+ * @returns The completion result.
+ */
 export async function openaiChatCompletion(args: OpenAICompletionArgs): Promise<PromptCompletion<string>> {
     const { client, model, prompt, system, history, temperature } = args;
 
@@ -48,6 +104,7 @@ export async function openaiChatCompletion(args: OpenAICompletionArgs): Promise<
             model,
             messages,
             temperature: temperature ?? 0.0,
+            max_tokens: args.maxTokens ?? 1000,
         });
 
         // Get usage details
@@ -69,7 +126,11 @@ export async function openaiChatCompletion(args: OpenAICompletionArgs): Promise<
     }
 }
 
-
+/**
+ * Performs a JSON completion using an OpenAI chat model.
+ * @param args Arguments for the OpenAI chat completion.
+ * @returns The completion result.
+ */
 export async function openaiJsonChatCompletion<TValue>(args: OpenAICompletionArgs): Promise<PromptCompletion<TValue>> {
     const { client, model, prompt, system, history, temperature } = args;
 
@@ -89,6 +150,7 @@ export async function openaiJsonChatCompletion<TValue>(args: OpenAICompletionArg
             model,
             messages,
             temperature: temperature ?? 0.0,
+            max_tokens: args.maxTokens ?? 1000,
             response_format: { type: "json_object" },
         });
 

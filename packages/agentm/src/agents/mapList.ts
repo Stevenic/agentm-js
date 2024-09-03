@@ -35,6 +35,13 @@ export interface MapListArgs extends AgentArgs {
     temperature?: number;
 
     /**
+     * Optional. Maximum number of tokens the model should return.
+     * @remarks
+     * Default is 1000.
+     */
+    maxTokens?: number;
+
+    /**
      * Optional. Instructions to further customize the system prompt sent to the model.
      */
     instructions?: string;
@@ -49,7 +56,7 @@ export interface MapListArgs extends AgentArgs {
  * @returns List of items mapped to the new shape.
  */
 export async function mapList<TItem extends {}>(args: MapListArgs): Promise<AgentCompletion<Array<TItem>>> {
-    const { goal, list } = args;
+    const { goal, list, maxTokens } = args;
     const temperature = args.temperature ?? 0.0;
 
     // Create a parallel completion function
@@ -77,7 +84,7 @@ export async function mapList<TItem extends {}>(args: MapListArgs): Promise<Agen
         };
 
         // Queue prompt completion
-        promises.push(completePrompt({prompt, system, useJSON, temperature}));
+        promises.push(completePrompt({prompt, system, useJSON, temperature, maxTokens}));
     }
 
     // Wait for prompts to complete and check for errors

@@ -26,6 +26,13 @@ export interface SummarizeListArgs<TItem> extends AgentArgs {
     temperature?: number;
 
     /**
+     * Optional. Maximum number of tokens the model should return.
+     * @remarks
+     * Default is 1000.
+     */
+    maxTokens?: number;
+
+    /**
      * Optional. Instructions to further customize the system prompt sent to the model.
      */
     instructions?: string;
@@ -56,7 +63,7 @@ export interface SummarizedItem<TItem> {
  * @returns List of items summarized to text.
  */
 export async function summarizeList<TItem = any>(args: SummarizeListArgs<TItem>): Promise<AgentCompletion<Array<SummarizedItem<TItem>>>> {
-    const { goal, list } = args;
+    const { goal, list, maxTokens } = args;
     const temperature = args.temperature ?? 0.0;
 
     // Create a parallel completion function
@@ -82,7 +89,7 @@ export async function summarizeList<TItem = any>(args: SummarizeListArgs<TItem>)
         };
 
         // Queue prompt completion
-        promises.push(completePrompt({prompt, system, useJSON, temperature}));
+        promises.push(completePrompt({prompt, system, useJSON, temperature, maxTokens}));
     }
 
     // Wait for prompts to complete and check for errors

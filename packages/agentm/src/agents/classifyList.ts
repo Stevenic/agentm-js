@@ -30,6 +30,13 @@ export interface ClassifyListArgs<TItem> extends AgentArgs {
     temperature?: number;
 
     /**
+     * Optional. Maximum number of tokens the model should return.
+     * @remarks
+     * Default is 1000.
+     */
+    maxTokens?: number;
+
+    /**
      * Optional. Instructions to further customize the system prompt sent to the model.
      */
     instructions?: string;
@@ -60,7 +67,7 @@ export interface ClassifiedItem<TItem> {
  * @returns List of classifications for each item in the list.
  */
 export async function classifyList<TItem = any>(args: ClassifyListArgs<TItem>): Promise<AgentCompletion<Array<ClassifiedItem<TItem>>>> {
-    const { goal, list } = args;
+    const { goal, list, maxTokens } = args;
     const temperature = args.temperature ?? 0.0;
 
     // Create a parallel completion function
@@ -71,7 +78,7 @@ export async function classifyList<TItem = any>(args: ClassifyListArgs<TItem>): 
     const instructions = args.instructions ? `\n${args.instructions}` : '';
     const system: SystemMessage = {
         role: 'system',
-        content: composePrompt(systemPrompt, {goal, categories, instructions})
+        content: composePrompt(systemPrompt, {goal, categories, instructions, maxTokens})
     };
  
     // Enumerate list

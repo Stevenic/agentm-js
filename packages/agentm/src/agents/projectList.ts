@@ -33,6 +33,13 @@ export interface ProjectListArgs<TItem> extends AgentArgs {
     temperature?: number;
 
     /**
+     * Optional. Maximum number of tokens the model should return.
+     * @remarks
+     * Default is 1000.
+     */
+    maxTokens?: number;
+
+    /**
      * Optional. Instructions to further customize the system prompt sent to the model.
      */
     instructions?: string;
@@ -63,7 +70,7 @@ export interface ProjectedItem<TItem> {
  * @returns List of items projected to the new text shape.
  */
 export async function projectList<TItem = any>(args: ProjectListArgs<TItem>): Promise<AgentCompletion<Array<ProjectedItem<TItem>>>> {
-    const { goal, list, template } = args;
+    const { goal, list, template, maxTokens } = args;
     const temperature = args.temperature ?? 0.0;
 
     // Create a parallel completion function
@@ -88,7 +95,7 @@ export async function projectList<TItem = any>(args: ProjectListArgs<TItem>): Pr
         };
 
         // Queue prompt completion
-        promises.push(completePrompt({prompt, system, temperature}));
+        promises.push(completePrompt({prompt, system, temperature, maxTokens}));
     }
 
     // Wait for prompts to complete and check for errors

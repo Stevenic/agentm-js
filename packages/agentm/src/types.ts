@@ -108,6 +108,11 @@ export interface PromptCompletionArgs {
     temperature?: number;
 
     /**
+     * Optional. Maximum number of tokens the model should return.
+     */
+    maxTokens?: number;
+
+    /**
      * Optional. Indicates whether the model should always return JSON as it's output.
      */
     useJSON?: boolean;

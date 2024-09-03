@@ -25,6 +25,13 @@ export interface SortListArgs<TItem> extends AgentArgs {
     temperature?: number;
 
     /**
+     * Optional. Maximum number of tokens the model should return.
+     * @remarks
+     * Default is 1000.
+     */
+    maxTokens?: number;
+
+    /**
      * Optional. Instructions to further customize the system prompt sent to the model.
      */
     instructions?: string;
@@ -51,7 +58,7 @@ export interface SortListArgs<TItem> extends AgentArgs {
  * @returns List of sorted items.
  */
 export async function sortList<TItem>(args: SortListArgs<TItem>): Promise<AgentCompletion<Array<TItem>>> {
-    const { goal, list } = args;
+    const { goal, list, maxTokens } = args;
     const temperature = args.temperature ?? 0.0;
 
     // Create a parallel completion function
@@ -76,7 +83,7 @@ export async function sortList<TItem>(args: SortListArgs<TItem>): Promise<AgentC
 
             // Complete prompt
             const useJSON = true;
-            const result = await completePrompt({prompt, system, useJSON, temperature});
+            const result = await completePrompt({prompt, system, useJSON, temperature, maxTokens});
             if (!result.completed) {
                 throw result.error;
             }

@@ -32,6 +32,13 @@ export interface ReduceListArgs<TValue extends {}> extends AgentArgs {
     temperature?: number;
 
     /**
+     * Optional. Maximum number of tokens the model should return.
+     * @remarks
+     * Default is 1000.
+     */
+    maxTokens?: number;
+
+    /**
      * Optional. Maximum number of history items to send the model.
      * @remarks
      * This further helps the model with its chain-of-thought. Default is 8.
@@ -58,7 +65,7 @@ export interface ReduceListArgs<TValue extends {}> extends AgentArgs {
  * @returns Reduced value.
  */
 export async function reduceList<TValue extends {}>(args: ReduceListArgs<TValue>): Promise<AgentCompletion<TValue>> {
-    const { goal, list, initialValue, completePrompt, shouldContinue } = args;
+    const { goal, list, initialValue, maxTokens, completePrompt, shouldContinue } = args;
     const temperature = args.temperature ?? 0.0;
     let maxHistory = args.maxHistory ?? 8;
     if (maxHistory < 2) {
@@ -86,7 +93,7 @@ export async function reduceList<TValue extends {}>(args: ReduceListArgs<TValue>
         };
 
         // Complete prompt
-        const result: AgentCompletion<WithExplanation<TValue>> = await completePrompt({prompt, system, history, useJSON, temperature});
+        const result: AgentCompletion<WithExplanation<TValue>> = await completePrompt({prompt, system, history, useJSON, temperature, maxTokens});
         if (!result.completed) {
             return { completed: false, error: result.error };
         } else if (!await shouldContinue()) {
