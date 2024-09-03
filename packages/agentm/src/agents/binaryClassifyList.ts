@@ -2,18 +2,57 @@ import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 
+/**
+ * Arguments for the binaryClassifyList Agent.
+ * @param TItem The type of the items in the list.
+ */
 export interface BinaryClassifyListArgs<TItem> extends AgentArgs {
+    /**
+     * Goal used to direct the classification task.
+     */
     goal: string;
+
+    /**
+     * List of items to classify.
+     */
     list: Array<TItem>;
+
+    /**
+     * Optional. Temperature the model should use for sampling completions.
+     * @remarks
+     * Default is 0.0.
+     */
     temperature?: number;
+
+    /**
+     * Optional. Instructions to further customize the system prompt sent to the model.
+     */
     instructions?: string;
 }
 
+/**
+ * A binary classified item.
+ * @remarks
+ * Returned by the binaryClassifyList Agent.
+ * @param TItem The type of the items in the list.
+ */
 export interface BinaryClassifiedItem<TItem> {
+    /**
+     * Indicates whether the item matches the provided goal.
+     */
     matches: boolean;
+
+    /**
+     * The item that was classified.
+     */
     item: TItem;
 }
 
+/**
+ * Performs a binary classification on a list of items.
+ * @param args Arguments for the binary classification task. 
+ * @returns List of binary classifications for each item in the list.
+ */
 export async function binaryClassifyList<TItem = any>(args: BinaryClassifyListArgs<TItem>): Promise<AgentCompletion<Array<BinaryClassifiedItem<TItem>>>> {
     const { goal, list } = args;
     const temperature = args.temperature ?? 0.0;

@@ -2,13 +2,40 @@ import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 
+/**
+ * Arguments for the filterList Agent.
+ * @param TItem The type of the items in the list.
+ */
 export interface FilterListArgs<TItem> extends AgentArgs {
+    /**
+     * Goal used to direct the filtering task.
+     */
     goal: string;
+
+    /**
+     * List of items to filter.
+     */
     list: Array<TItem>;
+
+    /**
+     * Optional. Temperature the model should use for sampling completions.
+     * @remarks
+     * Default is 0.0.
+     */
     temperature?: number;
+
+    /**
+     * Optional. Instructions to further customize the system prompt sent to the model.
+     */
     instructions?: string;
 }
 
+/**
+ * Filters a list of items to only include items that match a provided goal.
+ * @param TItem Type of the items in the list.
+ * @param args Arguments for the filtering task.
+ * @returns List of items that match the provided goal.
+ */
 export async function filterList<TItem>(args: FilterListArgs<TItem>): Promise<AgentCompletion<Array<TItem>>> {
     const { goal, list } = args;
     const temperature = args.temperature ?? 0.0;

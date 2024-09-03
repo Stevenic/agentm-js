@@ -2,14 +2,52 @@ import { AgentArgs, AgentCompletion, SystemMessage, UserMessage, WithExplanation
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 
+/**
+ * Arguments for the mapList Agent.
+ */
 export interface MapListArgs extends AgentArgs {
+    /**
+     * Goal used to direct the mapping task.
+     */
     goal: string;
+
+    /**
+     * List of items to map.
+     */
     list: Array<any>;
+
+    /**
+     * Shape of the output object.
+     * @remarks
+     * This is a "JSON Sketch" of the desired output shape. It should include instructions to 
+     * on how to map an item to the new shapes fields.
+     * 
+     * A top level "explanation" field is temporarily added to the shape to create a 
+     * chain-of-thought for the model so your shape should not include this field.
+     */
     outputShape: {};
+
+    /**
+     * Optional. Temperature the model should use for sampling completions.
+     * @remarks
+     * Default is 0.0.
+     */
     temperature?: number;
+
+    /**
+     * Optional. Instructions to further customize the system prompt sent to the model.
+     */
     instructions?: string;
 }
 
+/**
+ * Maps a list of items to a new shape.
+ * @remarks
+ * The mapped item is always a JSON object.
+ * @param TItem The type of the items in the list.
+ * @param args Arguments for the mapping task.
+ * @returns List of items mapped to the new shape.
+ */
 export async function mapList<TItem extends {}>(args: MapListArgs): Promise<AgentCompletion<Array<TItem>>> {
     const { goal, list } = args;
     const temperature = args.temperature ?? 0.0;

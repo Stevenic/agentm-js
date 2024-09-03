@@ -2,14 +2,54 @@ import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 
+/**
+ * Arguments for the sortList Agent.
+ * @param TItem The type of the items in the list.
+ */
 export interface SortListArgs<TItem> extends AgentArgs {
+    /**
+     * Goal used to direct the sorting task.
+     */
     goal: string;
+
+    /**
+     * List of items to sort.
+     */
     list: Array<TItem>;
+
+    /**
+     * Optional. Temperature the model should use for sampling completions.
+     * @remarks
+     * Default is 0.0.
+     */
     temperature?: number;
+
+    /**
+     * Optional. Instructions to further customize the system prompt sent to the model.
+     */
     instructions?: string;
+
+    /**
+     * Optional. Flag to log explanations of each sorting step to the console.
+     * @remarks 
+     * Default is false.
+     */
     logExplanations?: boolean;
 }
 
+/**
+ * Sorts a list of items.
+ * @remarks
+ * Uses a merge sort algorithm to sort the list. The model is asked to compare each pair of items
+ * in the list to determine their order. The model is provided with a goal and instructions to help
+ * guide the sorting process. 
+ * 
+ * The sort algorithm has a complexity of O(n log n) and can use parallel completions to speed up
+ * the sorting process.
+ * @param TItem The type of the items in the list.
+ * @param args Arguments for the sorting task.
+ * @returns List of sorted items.
+ */
 export async function sortList<TItem>(args: SortListArgs<TItem>): Promise<AgentCompletion<Array<TItem>>> {
     const { goal, list } = args;
     const temperature = args.temperature ?? 0.0;

@@ -1,6 +1,12 @@
 import { CancelledError } from "./CancelledError";
 import { completePrompt } from "./types";
 
+/**
+ * Creates a new completePrompt that logs the results of the wrapped completePrompt.
+ * @param completePrompt The completePrompt to wrap.
+ * @param logDetails Optional. If true, logs additional details about the prompt. Default is false.
+ * @returns A new completePrompt wrapper.
+ */
 export function logCompletePrompt<TValue>(completePrompt: completePrompt<TValue>, logDetails = false): completePrompt<TValue> {
     return async (args) => {
         const result = await completePrompt(args);

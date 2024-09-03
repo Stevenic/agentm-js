@@ -2,19 +2,66 @@ import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 
+/**
+ * Arguments for the projectList Agent.
+ * @param TItem The type of the items in the list.
+ */
 export interface ProjectListArgs<TItem> extends AgentArgs {
+    /**
+     * Goal used to direct the projection task.
+     */
     goal: string;
+
+    /**
+     * List of items to project.
+     */
     list: Array<TItem>;
+
+    /**
+     * Template used to project the items.
+     * @remarks
+     * The template can be any format but should include <placeholders> for the items various 
+     * fields. Markdown templates work well.
+     */
     template: string;
+
+    /**
+     * Optional. Temperature the model should use for sampling completions.
+     * @remarks
+     * Default is 0.0.
+     */
     temperature?: number;
+
+    /**
+     * Optional. Instructions to further customize the system prompt sent to the model.
+     */
     instructions?: string;
 }
 
+/**
+ * A projected item.
+ * @remarks
+ * Returned by the projectList Agent.
+ * @param TItem The type of the items in the list.
+ */
 export interface ProjectedItem<TItem> {
+    /**
+     * The item projected to the new text shape.
+     */
     projection: string;
+
+    /**
+     * The item that was projected.
+     */
     item: TItem;
 }
 
+/**
+ * Projects a list of items to a new text shape using a provided template.
+ * @param TItem The type of the items in the list.
+ * @param args Arguments for the projection task.
+ * @returns List of items projected to the new text shape.
+ */
 export async function projectList<TItem = any>(args: ProjectListArgs<TItem>): Promise<AgentCompletion<Array<ProjectedItem<TItem>>>> {
     const { goal, list, template } = args;
     const temperature = args.temperature ?? 0.0;

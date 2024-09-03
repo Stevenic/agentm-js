@@ -2,19 +2,63 @@ import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 
+/**
+ * Arguments for the classifyList Agent.
+ * @param TItem The type of the items in the list.
+ */
 export interface ClassifyListArgs<TItem> extends AgentArgs {
+    /**
+     * Goal used to direct the classification task.
+     */
     goal: string;
+
+    /**
+     * List of items to classify.
+     */
     list: Array<TItem>;
+
+    /**
+     * List of categories to classify the items as.
+     */
     categories: Array<string>;
+
+    /**
+     * Optional. Temperature the model should use for sampling completions.
+     * @remarks
+     * Default is 0.0.
+     */
     temperature?: number;
+
+    /**
+     * Optional. Instructions to further customize the system prompt sent to the model.
+     */
     instructions?: string;
 }
 
+/**
+ * A classified item.
+ * @remarks
+ * Returned by the classifyList Agent.
+ * @param TItem The type of the items in the list.
+ */
 export interface ClassifiedItem<TItem> {
+    /**
+     * The category the item was classified as.
+     */
     category: string;
+
+    /**
+     * The item that was classified.
+     */
     item: TItem;
 }
 
+/**
+ * Classifies a list of items based on a provided goal and list of categories.
+ * @param T
+ * @param args Arguments for the classification task.
+ * @returns List of classifications for each item in the list.
+ */
 export async function classifyList<TItem = any>(args: ClassifyListArgs<TItem>): Promise<AgentCompletion<Array<ClassifiedItem<TItem>>>> {
     const { goal, list } = args;
     const temperature = args.temperature ?? 0.0;
