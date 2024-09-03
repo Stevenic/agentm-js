@@ -28,7 +28,7 @@ $ yarn add agentm
 
 
 ## Quick Start 
-To get you started with AgentM we'll walk through the code for the [filter-discography](https://github.com/Stevenic/agentm-js/blob/main/examples/filter-discography.ts) example. This example is a toy example that takes a randomized list of every [Rush](https://en.wikipedia.org/wiki/Rush_discography) studio album and first filters the list to albums released in the the 1980's, then sorts the list chronologically, and finally maps the sorted list to an array of JSON objects that contain the title and a detailed description of each album. All of this using just a list of randomized titles as a starting point. 
+To get you started with AgentM we'll walk through the code for the [filter-discography](https://github.com/Stevenic/agentm-js/blob/main/examples/filter-discography.ts) example. This example is a toy example that takes a randomized list of every [Rush](https://en.wikipedia.org/wiki/Rush_discography) studio album and first filters the list to albums released in the 1980's, then sorts the list chronologically, and finally maps the sorted list to an array of JSON objects that contain the title and a detailed description of each album. All of this using just a list of randomized titles as a starting point. 
 
 The example uses [dotenv](https://www.npmjs.com/package/dotenv) to retrieve your OpenAI API Key so to set that up create a **.env** file in your project with the following structure:
 
