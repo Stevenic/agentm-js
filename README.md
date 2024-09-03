@@ -12,7 +12,7 @@ The initial release of AgentM includes support for calling OpenAI's GPT-4 family
 - **summarizeList** - This agent can generate text summaries for a list of items. Similar functionality as mapList but designed to return an input as a text summary.
 - **projectList** - The agent lets you create projections for a list of items using a template. Similar to summarizeList but the template gives much better control over the formatting of the models response.
 
-Have an idea for a new micro agent or feedback, start a new [discussion](https://github.com/Stevenic/agentm-js/discussions). 
+Have an idea for a new micro agent or feedback, start a new [discussion](https://github.com/Stevenic/agentm-js/discussions). Or if you're interesting in contributing to either the JavaScript or upcoming [Python version](https://github.com/Stevenic/agentm-py) of AgentM let me know... 
 
 ## Prerequisites
 AgentM currently supports OpenAI based models like gpt-4o and gpt-4o-mini. To use AgentM you will need an OpenAI API Key which you create from the dashboard here:
