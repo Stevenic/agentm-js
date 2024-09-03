@@ -1,35 +1,33 @@
-import { AgentArgs, AgentCompletion, SystemMessage, UserMessage, WithExplanation } from "../types";
+import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types";
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 
-export interface MapListArgs extends AgentArgs {
+export interface FilterListArgs<TItem> extends AgentArgs {
     goal: string;
-    list: Array<any>;
-    outputShape: {};
+    list: Array<TItem>;
     temperature?: number;
     instructions?: string;
 }
 
-export async function mapList<TItem extends {}>(args: MapListArgs): Promise<AgentCompletion<Array<TItem>>> {
+export async function filterList<TItem>(args: FilterListArgs<TItem>): Promise<AgentCompletion<Array<TItem>>> {
     const { goal, list } = args;
     const temperature = args.temperature ?? 0.0;
 
     // Create a parallel completion function
-    const completePrompt = parallelCompletePrompt<WithExplanation<TItem>>(args);
+    const completePrompt = parallelCompletePrompt<Decision>(args);
 
     // Compose system message
     const instructions = args.instructions ? `\n${args.instructions}` : '';
-    const outputShape: WithExplanation<{}> = {...args.outputShape, explanation};
     const system: SystemMessage = {
         role: 'system',
-        content: composePrompt(systemPrompt, {goal, instructions, outputShape})
+        content: composePrompt(systemPrompt, {goal, instructions})
     };
 
  
     // Enumerate list
     const useJSON = true;
     const length = list.length;
-    const promises: Promise<AgentCompletion<WithExplanation<TItem>>>[] = [];
+    const promises: Promise<AgentCompletion<Decision>>[] = [];
     for (let index = 0; index < length; index++) {
         // Compose prompt
         const item = args.list[index];
@@ -49,29 +47,36 @@ export async function mapList<TItem extends {}>(args: MapListArgs): Promise<Agen
         return { completed: false, error: errors[0].error };
     }
 
-    // Return results
-    const value = results.map(result => {
-        // Remove explanation
-        delete result.value!.explanation;
-        return result.value!;
-    });
+    // Copy kept items to output
+    const value: Array<TItem> = [];
+    for (let i = 0; i < results.length; i++) {
+        const decision = results[i].value!;
+        if (!decision.remove_item) {
+            value.push(list[i]);
+        }
+    }
 
-    // Return sorted list
+    // Return filtered list
     return { completed: true, value };
 }
 
-const explanation = `<explanation supporting the mapping you did>`;
+interface Decision {
+    explanation: string;
+    remove_item: boolean;
+}
+
 const systemPrompt = 
-`You are an expert at mapping list items from one type to another.
+`You are an expert at filtering items in a list.
 
 <GOALS>
 {{goal}} 
 
 <INSTRUCTIONS>
-Given an <ITEM> return a new JSON <OUTPUT> object that maps the item to the shape specified by the <GOAL>.{{instructions}}
+Determine if the <ITEM> should be removed from the list.
+Use the <DECISION> schema below to return your decisions as a JSON object.{{instructions}}
 
-<OUTPUT>
-{{outputShape}}`;
+<DECISION>
+{"explanation": "<explanation supporting your decision to remove item>", "remove_item": <true or false>}`;
 const itemPrompt =
 `<INDEX>
 {{index}} of {{length}}

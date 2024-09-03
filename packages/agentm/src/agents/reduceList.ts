@@ -30,13 +30,14 @@ export async function reduceList<TValue extends {}>(args: ReduceListArgs<TValue>
 
     // Enumerate list
     const useJSON = true;
+    const length = list.length;
     const history: Message[] = [];
-    for (let index = 0; index < list.length; index++) {
+    for (let index = 0; index < length; index++) {
         // Compose prompt
         const item = args.list[index];
         const prompt: UserMessage = {
             role: 'user',
-            content: composePrompt(itemPrompt, {index, item})
+            content: composePrompt(itemPrompt, {index, length, item})
         };
 
         // Complete prompt
@@ -79,7 +80,7 @@ Given an <ITEM> return a new JSON <OUTPUT> object that combines the item with th
 {{output}}`;
 const itemPrompt =
 `<INDEX>
-{{index}}
+{{index}} of {{length}}
 
 <ITEM>
 {{item}}`;

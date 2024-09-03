@@ -2,15 +2,15 @@ import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 
-export interface SortListArgs<TValue extends {}> extends AgentArgs {
+export interface SortListArgs<TItem> extends AgentArgs {
     goal: string;
-    list: Array<TValue>;
+    list: Array<TItem>;
     temperature?: number;
     instructions?: string;
     logExplanations?: boolean;
 }
 
-export async function sortList<TValue extends {}>(args: SortListArgs<TValue>): Promise<AgentCompletion<Array<TValue>>> {
+export async function sortList<TItem>(args: SortListArgs<TItem>): Promise<AgentCompletion<Array<TItem>>> {
     const { goal, list } = args;
     const temperature = args.temperature ?? 0.0;
 
@@ -25,9 +25,9 @@ export async function sortList<TValue extends {}>(args: SortListArgs<TValue>): P
     };
 
     // Sort list
-    let value: Array<TValue>;
+    let value: Array<TItem>;
     try {
-        const comparer = async (a: TValue, b: TValue) => {
+        const comparer = async (a: TItem, b: TItem) => {
             // Compose prompt
             const prompt: UserMessage = {
                 role: 'user',
@@ -87,7 +87,7 @@ const itemPrompt =
 <ITEM_B>
 {{b}}`;
 
-async function mergeSort<TValue>(list: Array<TValue>, comparer: (a: TValue, b: TValue) => Promise<number>): Promise<Array<TValue>> {
+async function mergeSort<TItem>(list: Array<TItem>, comparer: (a: TItem, b: TItem) => Promise<number>): Promise<Array<TItem>> {
     // Check for empty or single item list
     if (list.length < 2) {
         return list;
@@ -96,7 +96,7 @@ async function mergeSort<TValue>(list: Array<TValue>, comparer: (a: TValue, b: T
     return await split(list, comparer);
 }
 
-async function split<TValue>(list: Array<TValue>, comparer: (a: TValue, b: TValue) => Promise<number>): Promise<Array<TValue>> {
+async function split<TItem>(list: Array<TItem>, comparer: (a: TItem, b: TItem) => Promise<number>): Promise<Array<TItem>> {
     // Does list have a single item?
     if(list.length < 2) { 
         return list;
@@ -114,7 +114,7 @@ async function split<TValue>(list: Array<TValue>, comparer: (a: TValue, b: TValu
     return await merge(leftList, rightList, comparer);
 }
 
-async function merge<TValue>(leftList: Array<TValue>, rightList: Array<TValue>, comparer: (a: TValue, b: TValue) => Promise<number>): Promise<Array<TValue>> {
+async function merge<TItem>(leftList: Array<TItem>, rightList: Array<TItem>, comparer: (a: TItem, b: TItem) => Promise<number>): Promise<Array<TItem>> {
     let result = [];
     let leftIndex = 0;
     let rightIndex = 0;
