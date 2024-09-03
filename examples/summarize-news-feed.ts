@@ -1,4 +1,4 @@
-import { mapList, openai } from "agentm";
+import { openai, summarizeList } from "agentm";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 
@@ -23,22 +23,12 @@ const xml = file.slice(start, end);
 const list = xml.split('</item>').map(item => item + '</item>');
 list.pop(); // Remove last empty item
 
-// Define output shape
-interface NewsItem {
-    title: string;
-    abstract: string;
-    link: string;
-    pubDate: string;
-}
-
-const outputShape = { title: '<items title>', abstract: '<items abstract parsed from description>', link: '<items link>', pubDate: '<items publish date>' }; 
-
-// Extract news feed from file
+// Summarize the items in the news feed
 const parallelCompletions = 3;
-const goal = `Map the item to the output shape.`;
-mapList<NewsItem>({goal, list, outputShape, parallelCompletions, completePrompt, shouldContinue }).then(result => {;
+const goal = `Summarize the news item. Use markdown and only include the # title (publish date), **abstract**, and [link].`;
+summarizeList({goal, list, parallelCompletions, completePrompt, shouldContinue }).then(result => {;
     if (result.completed) {
-        console.log(result.value);
+        result.value!.forEach((entry) => console.log(`\x1b[32m${entry.summary}\x1b[0m\n${'='.repeat(80)}`));
     } else {
         console.error(result.error);
     }
