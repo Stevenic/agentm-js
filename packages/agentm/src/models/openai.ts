@@ -1,6 +1,8 @@
 import OpenAI from "openai";
-import { completePrompt, PromptCompletion, PromptCompletionArgs, PromptCompletionDetails, PromptCompletionFinishReason } from "../types";
+import { completePrompt, PromptCompletion, PromptCompletionArgs, PromptCompletionDetails, PromptCompletionFinishReason, Tokenizer } from "../types";
 import { RequestError } from "../RequestError";
+import { encode as encode200k, decode as decode200k } from "gpt-tokenizer/esm/model/gpt-4o";
+import { encode as encode100k, decode as decode100k } from "gpt-tokenizer";
 
 /**
  * Arguments to configure an OpenAI chat model.
@@ -78,6 +80,23 @@ export function openai(args: OpenaiArgs): completePrompt<any> {
             return openaiChatCompletion({ client, model, temperature, maxTokens, ...args});
         }
     };
+}
+
+/**
+ * Returns a tokenizer for OpenAI models.
+ * @remarks
+ * The encoding parameter specifies the tokenizer to use. For gpt-4o and gpt-4o-mini use the
+ * default 'o200k_base'. For gpt-3.5* and gpt-4* use the older 'cl100k_base' encoding.
+ * @param encoding Encoding to use for the tokenizer.
+ * @returns The tokenizer for the specified encoding.
+ */
+export function openaiTokenizer(encoding: 'cl100k_base' | 'o200k_base' = 'o200k_base'): Tokenizer {
+    switch (encoding) {
+        case 'cl100k_base':
+            return { encodeTokens: encode100k, decodeTokens: decode100k };
+        case 'o200k_base':
+            return { encodeTokens: encode200k, decodeTokens: decode200k };
+    }
 }
 
 /**

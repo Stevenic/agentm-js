@@ -17,6 +17,7 @@
     },
     "dependencies": {
         "@types/node": "^18.11.18",
+        "gpt-tokenizer": "2.2.1",
         "jsonschema": "^1.4.1",
         "openai": "^4.57.0"
     },

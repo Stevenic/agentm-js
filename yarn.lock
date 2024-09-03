@@ -142,7 +142,7 @@ __metadata:
   resolution: "agentm-examples@workspace:examples"
   dependencies:
     "@types/node": "npm:^18.11.18"
-    agentm: "npm:0.1.0"
+    agentm: "npm:0.2.0"
     dotenv: "npm:^16.4.5"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^4.8.2"
@@ -155,11 +155,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"agentm@npm:0.1.0, agentm@workspace:packages/agentm":
+"agentm@npm:0.2.0, agentm@workspace:packages/agentm":
   version: 0.0.0-use.local
   resolution: "agentm@workspace:packages/agentm"
   dependencies:
     "@types/node": "npm:^18.11.18"
+    gpt-tokenizer: "npm:2.2.1"
     jsonschema: "npm:^1.4.1"
     openai: "npm:^4.57.0"
     ts-node: "npm:^10.9.2"
@@ -322,6 +323,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"gpt-tokenizer@npm:2.2.1":
+  version: 2.2.1
+  resolution: "gpt-tokenizer@npm:2.2.1"
+  dependencies:
+    rfc4648: "npm:^1.5.2"
+  checksum: 10c0/f9d4f99db441f25d98c3f3939e0f455ec896afdbb17e04a73054781fc500df27a88283bd38bd9dcf5737cc77fe3c724b7dda4c08c1c655c36665400b072a710d
+  languageName: node
+  linkType: hard
+
 "has-property-descriptors@npm:^1.0.2":
   version: 1.0.2
   resolution: "has-property-descriptors@npm:1.0.2"
@@ -458,6 +468,13 @@ __metadata:
   dependencies:
     side-channel: "npm:^1.0.6"
   checksum: 10c0/62372cdeec24dc83a9fb240b7533c0fdcf0c5f7e0b83343edd7310f0ab4c8205a5e7c56406531f2e47e1b4878a3821d652be4192c841de5b032ca83619d8f860
+  languageName: node
+  linkType: hard
+
+"rfc4648@npm:^1.5.2":
+  version: 1.5.3
+  resolution: "rfc4648@npm:1.5.3"
+  checksum: 10c0/0ddc47a752b7c0bda45f26e099ac39752562af0962895b86f2861f38e083630bd7215dd09637380e0446e6f60acf4fdbc93330d728772d431e6f4c638795cb4c
   languageName: node
   linkType: hard
 

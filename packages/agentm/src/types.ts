@@ -218,3 +218,27 @@ export interface UserMessage extends Message {
 export interface AssistantMessage extends Message {
     role: 'assistant';
 }
+
+// Tokenizers
+
+export interface Tokenizer {
+    /**
+     * Converts a string of text into tokens.
+     */
+    encodeTokens: encodeTokens;
+
+    /**
+     * Converts an array of tokens into a string of text.
+     */
+    decodeTokens: decodeTokens;
+}
+
+/**
+ * Converts a string of text into tokens.
+ */
+export type encodeTokens = (text: string) => number[];
+
+/**
+ * Converts an array of tokens into a string of text.
+ */
+export type decodeTokens = (tokens: number[]) => string;
