@@ -9,7 +9,8 @@ The initial release of AgentM includes support for calling OpenAI's GPT-4 family
 - **sortList** - This agent is able to sort a list using some criteria requiring intelligence. For example, you can give it a list of events and ask the agent return them in chronological order. It implements merge sort so it has a very stable sort complexity of O(n log n) but that is still probably prohibitively expensive for most use cases. In most cases you're probably better off using mapList to map a lists items to a shape that can be sorted using traditional deterministic algorithms.
 - **classifyList** - This agent can classify items in a list using a provided list of categories. Useful for everything for sentiment classification to categorizing documents. Another work horse agent.
 - **binaryClassifyList** - This agent provides a binary true/false classification of items in a list. The results should be similar to filterList but without removing any items from the list.
-- **summarizeList** - This agent can generate text summaries for a list of items.
+- **summarizeList** - This agent can generate text summaries for a list of items. Similar functionality as mapList but designed to return an input as a text summary.
+- **projectList** - The agent lets you create projections for a list of items using a template. Similar to summarizeList but the template gives much better control over the formatting of the models response.
 
 Have an idea for a new micro agent or feedback, start a new [discussion](https://github.com/Stevenic/agentm-js/discussions). 
 
