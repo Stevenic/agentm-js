@@ -7,8 +7,12 @@ The initial release of AgentM includes support for calling OpenAI's GPT-4 family
 - **reduceList** - This agent is able to count things using human like first principles. When humans count, we count each item one by one and make a mental note of our progress along the way. The reduceList agent counts the same way. It's useful for counting long sequences of things where intelligence is needed. For example you could use it to analyze customer support logs and count the number of cases that ended with a positive versus negative sentiment.
 - **filterList** - This agent is able to filter the items in a list based upon some criteria. It's useful where you want to make an intelligent decision around whether to keep an item in the list or remove it. Like mapList, this agent is a work horse you'll use over and over.
 - **sortList** - This agent is able to sort a list using some criteria requiring intelligence. For example, you can give it a list of events and ask the agent return them in chronological order. It implements merge sort so it has a very stable sort complexity of O(n log n) but that is still probably prohibitively expensive for most use cases. In most cases you're probably better off using mapList to map a lists items to a shape that can be sorted using traditional deterministic algorithms.
+- **classifyList** - This agent can classify items in a list using a provided list of categories. Useful for everything for sentiment classification to categorizing documents. Another work horse agent.
+- **binaryClassifyList** - This agent provides a binary true/false classification of items in a list. The results should be similar to filterList but without removing any items from the list. 
 
-Other agents for common GenAI tasks like summarizing, classification, and generation will be added soon.
+Other agents for common GenAI tasks like summarizing, classification, and generation will be added soon. 
+
+Have an idea for a new micro agent or feedback, start a new [discussion](https://github.com/Stevenic/agentm-js/discussions). 
 
 ## Prerequisites
 AgentM currently supports OpenAI based models like gpt-4o and gpt-4o-mini. To use AgentM you will need an OpenAI API Key which you create from the dashboard here:

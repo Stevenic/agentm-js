@@ -64,7 +64,7 @@ const explanation = `<explanation supporting the mapping you did>`;
 const systemPrompt = 
 `You are an expert at mapping list items from one type to another.
 
-<GOALS>
+<GOAL>
 {{goal}} 
 
 <INSTRUCTIONS>

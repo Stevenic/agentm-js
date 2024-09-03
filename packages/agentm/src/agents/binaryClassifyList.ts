@@ -2,19 +2,24 @@ import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 
-export interface FilterListArgs<TItem> extends AgentArgs {
+export interface BinaryClassifyListArgs<TItem> extends AgentArgs {
     goal: string;
     list: Array<TItem>;
     temperature?: number;
     instructions?: string;
 }
 
-export async function filterList<TItem>(args: FilterListArgs<TItem>): Promise<AgentCompletion<Array<TItem>>> {
+export interface BinaryClassifiedItem<TItem> {
+    matches: boolean;
+    item: TItem;
+}
+
+export async function binaryClassifyList<TItem = any>(args: BinaryClassifyListArgs<TItem>): Promise<AgentCompletion<Array<BinaryClassifiedItem<TItem>>>> {
     const { goal, list } = args;
     const temperature = args.temperature ?? 0.0;
 
     // Create a parallel completion function
-    const completePrompt = parallelCompletePrompt<Decision>(args);
+    const completePrompt = parallelCompletePrompt<Classification>(args);
 
     // Compose system message
     const instructions = args.instructions ? `\n${args.instructions}` : '';
@@ -22,12 +27,11 @@ export async function filterList<TItem>(args: FilterListArgs<TItem>): Promise<Ag
         role: 'system',
         content: composePrompt(systemPrompt, {goal, instructions})
     };
-
  
     // Enumerate list
     const useJSON = true;
     const length = list.length;
-    const promises: Promise<AgentCompletion<Decision>>[] = [];
+    const promises: Promise<AgentCompletion<Classification>>[] = [];
     for (let index = 0; index < length; index++) {
         // Compose prompt
         const item = args.list[index];
@@ -47,36 +51,28 @@ export async function filterList<TItem>(args: FilterListArgs<TItem>): Promise<Ag
         return { completed: false, error: errors[0].error };
     }
 
-    // Copy kept items to output
-    const value: Array<TItem> = [];
-    for (let i = 0; i < results.length; i++) {
-        const decision = results[i].value!;
-        if (!decision.remove_item) {
-            value.push(list[i]);
-        }
-    }
-
-    // Return filtered list
+    // Return results
+    const value = results.map((result, index) => ({ matches: result.value!.matches, item: list[index] }));
     return { completed: true, value };
 }
 
-interface Decision {
+interface Classification {
     explanation: string;
-    remove_item: boolean;
+    matches: boolean;
 }
 
 const systemPrompt = 
-`You are an expert at filtering items in a list.
+`You are an expert at classifying items in a list.
 
 <GOAL>
 {{goal}} 
 
 <INSTRUCTIONS>
-Determine if the <ITEM> should be removed from the list using provided <GOAL>.
-Use the <DECISION> schema below to return your decisions as a JSON object.{{instructions}}
+Given an <ITEM> determine if it matches the provided <GOAL>.
+Return your classification as a JSON <CLASSIFICATION> object.{{instructions}}
 
-<DECISION>
-{"explanation": "<explanation supporting your decision to remove item>", "remove_item": <true or false>}`;
+<CLASSIFICATION>
+{"explanation": "<explanation supporting your classification>", "matches": <true or false>}`;
 const itemPrompt =
 `<INDEX>
 {{index}} of {{length}}

@@ -71,11 +71,11 @@ interface Decision {
 const systemPrompt = 
 `You are an expert in sorting a list of items.
 
-<GOALS>
+<GOAL>
 {{goal}} 
 
 <INSTRUCTIONS>
-Determine if <ITEM_A> should be sorted BEFORE, EQUAL, or AFTER <ITEM_B>.
+Determine if <ITEM_A> should be sorted BEFORE, EQUAL, or AFTER <ITEM_B> based upon the stated <GOAL>.
 Use the <DECISION> schema below to return your decisions as a JSON object.{{instructions}}
 
 <DECISION>

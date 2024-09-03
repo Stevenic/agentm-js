@@ -70,7 +70,7 @@ const explanation = `<explanation supporting your answer>`;
 const systemPrompt = 
 `You are an expert at combining and reducing items in a list.
 
-<GOALS>
+<GOAL>
 {{goal}} 
 
 <INSTRUCTIONS>
