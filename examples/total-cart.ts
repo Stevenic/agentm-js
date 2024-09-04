@@ -5,12 +5,9 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // Initialize OpenAI
-const apiKey = process.env.apiKey!;
+const apiKey = process.env.OPENAI_API_KEY!;
 const model = 'gpt-4o-2024-08-06';
 const completePrompt = openai({ apiKey, model });
-
-// Create cancellation token
-const shouldContinue = () => true;
 
 // Mock up shopping cart data
 const list = [
@@ -23,7 +20,7 @@ const list = [
 // Sum up the total quantity and price
 const goal = `Sum the quantity and total columns.`;
 const initialValue = { quantity: 0, total: 0 };
-reduceList({goal, list, initialValue, completePrompt, shouldContinue }).then(result => {;
+reduceList({goal, list, initialValue, completePrompt }).then(result => {;
     if (result.completed) {
         console.log(result.value);
     } else {

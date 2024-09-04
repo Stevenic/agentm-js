@@ -14,11 +14,11 @@ export interface AgentArgs {
     completePrompt: completePrompt<any>;
 
     /**
-     * Cancellation function.
+     * Optional. Cancellation function.
      * @remarks
      * This function will be called periodically by agents to check for cancellation.
      */
-    shouldContinue: shouldContinue;
+    shouldContinue?: shouldContinue;
 
     /**
      * Optional. Maximum number of parallel completions allowed.

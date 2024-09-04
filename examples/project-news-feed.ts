@@ -6,12 +6,9 @@ import * as fs from "fs";
 dotenv.config();
 
 // Initialize OpenAI 
-const apiKey = process.env.apiKey!;
+const apiKey = process.env.OPENAI_API_KEY!;
 const model = 'gpt-4o-mini';
 const completePrompt = openai({ apiKey, model });
-
-// Create cancellation token
-const shouldContinue = () => true;
 
 // Read file from ./data/news-feed.xml
 const file = fs.readFileSync('./data/news-feed.xml', 'utf8');
@@ -33,7 +30,7 @@ const template =
 // Summarize the items in the news feed
 const parallelCompletions = 3;
 const goal = `Map the news item to the template.`;
-projectList({goal, list, template, parallelCompletions, completePrompt, shouldContinue }).then(result => {;
+projectList({goal, list, template, parallelCompletions, completePrompt }).then(result => {;
     if (result.completed) {
         result.value!.forEach((entry) => console.log(`\x1b[32m${entry.projection}\x1b[0m\n${'='.repeat(80)}`));
     } else {

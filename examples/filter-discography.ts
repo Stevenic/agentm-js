@@ -5,12 +5,9 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // Initialize OpenAI 
-const apiKey = process.env.apiKey!;
+const apiKey = process.env.OPENAI_API_KEY!;
 const model = 'gpt-4o-mini';
 const completePrompt = openai({ apiKey, model });
-
-// Create cancellation token
-const shouldContinue = () => true;
 
 // Create randomized list of rushes studio albums
 const rushAlbums = [
@@ -50,7 +47,7 @@ async function filterAndSortList() {
     console.log(`\x1b[35;1mFiltering albums to the 80's...\x1b[0m`);
     const parallelCompletions = 3;
     const filterGoal = `Filter the list to only include rush albums released in the 1980's.`;
-    const filtered = await filterList({goal: filterGoal, list: rushAlbums, parallelCompletions, completePrompt, shouldContinue });
+    const filtered = await filterList({goal: filterGoal, list: rushAlbums, parallelCompletions, completePrompt });
     if (!filtered.completed) {
         console.error(filtered.error);
         return;
@@ -59,7 +56,7 @@ async function filterAndSortList() {
     // Sort filtered list chronologically
     console.log(`\x1b[35;1mSorting albums chronologically...\x1b[0m`);
     const sortGoal = `Sort the list of rush studio albums chronologically from oldest to newest.`;
-    const sorted = await sortList({goal: sortGoal, list: filtered.value!, parallelCompletions, completePrompt, shouldContinue });
+    const sorted = await sortList({goal: sortGoal, list: filtered.value!, parallelCompletions, completePrompt });
     if (!sorted.completed) {
         console.error(sorted.error);
         return;
@@ -68,7 +65,7 @@ async function filterAndSortList() {
     // Add in world knowledge
     console.log(`\x1b[35;1mGenerating album details...\x1b[0m`);
     const detailsGoal = `Map the item to the output shape.`;
-    const details = await mapList<AlbumDetails>({goal: detailsGoal, list: sorted.value!, jsonShape, parallelCompletions, completePrompt, shouldContinue });
+    const details = await mapList<AlbumDetails>({goal: detailsGoal, list: sorted.value!, jsonShape, parallelCompletions, completePrompt });
     if (!details.completed) {
         console.error(details.error);
         return;

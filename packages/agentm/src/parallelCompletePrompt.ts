@@ -12,7 +12,8 @@ import { AgentArgs, completePrompt } from "./types";
  * @returns A new completePrompt wrapper.
  */
 export function parallelCompletePrompt<TValue = string>(args: AgentArgs): completePrompt<TValue> {
-    const { completePrompt, shouldContinue, parallelCompletions } = args;
+    const { completePrompt, parallelCompletions } = args;
+    const shouldContinue = args.shouldContinue ?? (() => Promise.resolve(true));
 
     // Create a new semaphore to limit completions
     const semaphore = new Semaphore(parallelCompletions ?? 1);

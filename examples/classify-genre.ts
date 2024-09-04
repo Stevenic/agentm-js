@@ -5,12 +5,9 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // Initialize OpenAI 
-const apiKey = process.env.apiKey!;
+const apiKey = process.env.OPENAI_API_KEY!;
 const model = 'gpt-4o-mini';
 const completePrompt = openai({ apiKey, model });
-
-// Create cancellation token
-const shouldContinue = () => true;
 
 // Create randomized list of artists (5 from each genre)
 const list = [
@@ -53,7 +50,7 @@ const categories = [
 // Identify each artist's genre
 const parallelCompletions = 3;
 const goal = `Identify the genre of each artist from the list.`;
-classifyList({goal, list, categories, parallelCompletions, completePrompt, shouldContinue }).then(result => {;
+classifyList({goal, list, categories, parallelCompletions, completePrompt }).then(result => {;
     if (result.completed) {
         result.value!.forEach((entry, index) => console.log(`${entry.item} - ${entry.category}`));
     } else {

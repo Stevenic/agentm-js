@@ -5,12 +5,9 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // Initialize OpenAI
-const apiKey = process.env.apiKey!;
+const apiKey = process.env.OPENAI_API_KEY!;
 const model = 'gpt-4o-2024-08-06';
 const completePrompt = openai({ apiKey, model });
-
-// Create cancellation token
-const shouldContinue = () => true;
 
 // Mock up purchase data
 const list = [
@@ -54,7 +51,7 @@ const list = [
 // Sum up the total quantity and price
 const goal = `Count the number of orders with complete outfits where an outfit is pants and a shirt.`;
 const initialValue = { count: 0 };
-reduceList({goal, list, initialValue, completePrompt, shouldContinue }).then(result => {;
+reduceList({goal, list, initialValue, completePrompt }).then(result => {;
     if (result.completed) {
         console.log(result.value);
     } else {

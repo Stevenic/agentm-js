@@ -5,12 +5,9 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // Initialize OpenAI 
-const apiKey = process.env.apiKey!;
+const apiKey = process.env.OPENAI_API_KEY!;
 const model = 'gpt-4o-mini';
 const completePrompt = openai({ apiKey, model });
-
-// Create cancellation token
-const shouldContinue = () => true;
 
 // Create randomized list of artists (5 from each genre)
 const list = [
@@ -44,7 +41,7 @@ const list = [
 // Identify each artist's genre
 const parallelCompletions = 3;
 const goal = `Has the artist had a #1 hit within the last 5 years?`;
-binaryClassifyList({goal, list, parallelCompletions, completePrompt, shouldContinue }).then(result => {;
+binaryClassifyList({goal, list, parallelCompletions, completePrompt }).then(result => {;
     if (result.completed) {
         console.log("Artists with a #1 hit within the last 5 years:");
         result.value!.filter(entry => entry.matches).forEach(entry => console.log(entry.item));

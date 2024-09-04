@@ -6,12 +6,9 @@ import * as fs from "fs";
 dotenv.config();
 
 // Initialize OpenAI 
-const apiKey = process.env.apiKey!;
+const apiKey = process.env.OPENAI_API_KEY!;
 const model = 'gpt-4o-mini';
 const completePrompt = openai({ apiKey, model });
-
-// Create cancellation token
-const shouldContinue = () => true;
 
 // Read file from ./data/news-feed.xml
 const file = fs.readFileSync('./data/news-feed.xml', 'utf8');
@@ -62,7 +59,7 @@ const jsonSchema: JsonSchema = {
 // Extract news feed from file
 const parallelCompletions = 3;
 const goal = `Map the item to the output shape.`;
-mapList<NewsItem>({goal, list, jsonSchema, parallelCompletions, completePrompt, shouldContinue }).then(result => {;
+mapList<NewsItem>({goal, list, jsonSchema, parallelCompletions, completePrompt }).then(result => {;
     if (result.completed) {
         console.log(result.value);
     } else {

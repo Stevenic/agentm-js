@@ -6,12 +6,9 @@ import * as fs from "fs";
 dotenv.config();
 
 // Initialize OpenAI 
-const apiKey = process.env.apiKey!;
+const apiKey = process.env.OPENAI_API_KEY!;
 const model = 'gpt-4o-mini';
 const completePrompt = openai({ apiKey, model });
-
-// Create cancellation token
-const shouldContinue = () => true;
 
 // Read document
 const document = fs.readFileSync('./data/paul-graham-essay.txt', 'utf8');
@@ -19,9 +16,10 @@ const document = fs.readFileSync('./data/paul-graham-essay.txt', 'utf8');
 // Summarize the document
 const list = [document];
 const goal = `Summarize the document.`;
-summarizeList({goal, list, completePrompt, shouldContinue }).then(result => {;
+summarizeList({goal, list, completePrompt }).then(result => {;
     if (result.completed) {
-        result.value!.forEach((entry) => console.log(`\x1b[32m${entry.summary}\x1b[0m`));
+        const { summary } = result.value![0];
+        console.log(summary);
     } else {
         console.error(result.error);
     }

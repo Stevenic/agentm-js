@@ -72,9 +72,10 @@ export interface ReduceListArgs<TValue extends {}> extends AgentArgs {
  * @returns Reduced value.
  */
 export async function reduceList<TValue extends {}>(args: ReduceListArgs<TValue>): Promise<AgentCompletion<TValue>> {
-    const { goal, list, initialValue, jsonSchema, maxTokens, completePrompt, shouldContinue } = args;
+    const { goal, list, initialValue, jsonSchema, maxTokens, completePrompt } = args;
     const temperature = args.temperature ?? 0.0;
     let maxHistory = args.maxHistory ?? 8;
+    const shouldContinue = args.shouldContinue ?? (() => true);
     if (maxHistory < 2) {
         maxHistory = 2;
     }

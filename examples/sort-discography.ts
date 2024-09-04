@@ -5,12 +5,9 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // Initialize OpenAI 
-const apiKey = process.env.apiKey!;
+const apiKey = process.env.OPENAI_API_KEY!;
 const model = 'gpt-4o-mini';
 const completePrompt = openai({ apiKey, model });
-
-// Create cancellation token
-const shouldContinue = () => true;
 
 // Create randomized list of rushes studio albums
 const list = [
@@ -39,7 +36,7 @@ const list = [
 const logExplanations = true;
 const parallelCompletions = 1;
 const goal = `Sort the list of rush studio albums chronologically from oldest to newest.`;
-sortList({goal, list, parallelCompletions, logExplanations, completePrompt, shouldContinue }).then(result => {;
+sortList({goal, list, parallelCompletions, logExplanations, completePrompt }).then(result => {;
     if (result.completed) {
         result.value!.forEach((item, index) => console.log(`${index + 1}. ${item}`));
     } else {
