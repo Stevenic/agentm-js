@@ -6,5 +6,7 @@ export * from "./logCompletePrompt";
 export * from "./parallelCompletePrompt";
 export * from "./RequestError";
 export * from "./Semaphore";
+export * from "./splitText";
+export * from "./tokenCounter";
 export * from "./types";
 export * from "./variableToString";
