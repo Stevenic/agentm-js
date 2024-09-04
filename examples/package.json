@@ -15,9 +15,10 @@
     },
     "dependencies": {
         "@types/node": "^18.11.18",
-        "agentm": "0.2.0",
+        "agentm": "0.3.0",
         "dotenv": "^16.4.5",
-        "jsonschema": "^1.4.1"
+        "jsonschema": "^1.4.1",
+        "node-fetch": "^2.6.1"
     },
     "devDependencies": {
         "ts-node": "^10.9.2",

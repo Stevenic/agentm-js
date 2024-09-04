@@ -2,6 +2,7 @@ export * from "./binaryClassifyList";
 export * from "./chainOfThought";
 export * from "./classifyList";
 export * from "./filterList";
+export * from "./generateObject";
 export * from "./groundedAnswer";
 export * from "./mapList";
 export * from "./projectList";
