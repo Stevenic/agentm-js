@@ -2,13 +2,18 @@ import { AgentArgs, ExplainedAnswer, JsonSchema, PromptCompletion, SystemMessage
 import { composePrompt } from "../composePrompt";
 
 /**
- * Arguments for the chainOfThought Agent.
+ * Arguments for the groundedAnswer Agent.
  */
-export interface ChainOfThoughtArgs extends AgentArgs {
+export interface GroundedAnswerArgs extends AgentArgs {
     /**
      * Question to ask the model.
      */
     question: string;
+
+    /**
+     * Context to provide for grounding the models answering.
+     */
+    context: string;
 
     /**
      * Optional. Temperature the model should use for sampling completions.
@@ -31,22 +36,21 @@ export interface ChainOfThoughtArgs extends AgentArgs {
 }
 
 /**
- * Asks the model a question requiring a chain-of-thought.
+ * Asks the model a question using contextual information to ground the models answer.
  * @remarks
- * The model is forced to separate it's chain of thought from it's answer which can be useful for 
- * situations where you want to show the user the answer without all of thr reasoning.
- * @param args Arguments for the chainOfThought task.
+ * A hallucination guard is used to help ensure that the models answer stays grounded in the provided context.
+ * @param args Arguments for the groundedAnswer task.
  * @returns Answer to the question.
  */
-export async function chainOfThought(args: ChainOfThoughtArgs): Promise<PromptCompletion<ExplainedAnswer>> {
-    const { question, maxTokens, completePrompt } = args;
+export async function groundedAnswer(args: GroundedAnswerArgs): Promise<PromptCompletion<ExplainedAnswer>> {
+    const { question, context, maxTokens, completePrompt } = args;
     const temperature = args.temperature ?? 0.0;
 
     // Compose system message
     const instructions = args.instructions ? `\n${args.instructions}` : '';
     const system: SystemMessage = {
         role: 'system',
-        content: composePrompt(systemPrompt, {instructions})
+        content: composePrompt(systemPrompt, {context, instructions})
     };
  
     // Complete the prompt
@@ -72,8 +76,13 @@ const jsonSchema: JsonSchema = {
 };
 
 const systemPrompt = 
-`<INSTRUCTIONS>
-Answer the users question using the JSON <OUTPUT> structure below.{{instructions}}
+`<CONTEXT>
+{{context}}
+
+<INSTRUCTIONS>
+Base your answer only on the information provided in the above <CONTEXT>.
+Return your answer using the JSON <OUTPUT> below. 
+Do not directly mention that you're using the context in your answer.{{instructions}}
 
 <OUTPUT>
 {"explanation": "<explain your reasoning>", "answer": "<the answer>"}`;

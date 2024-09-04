@@ -252,3 +252,19 @@ export type encodeTokens = (text: string) => number[];
  * Converts an array of tokens into a string of text.
  */
 export type decodeTokens = (tokens: number[]) => string;
+
+
+/**
+ * Generated answer to a question.
+ */
+export interface ExplainedAnswer {
+    /**
+     * Explanation of the models reasoning for the answer.
+     */
+    explanation: string;
+
+    /**
+     * Answer to the question.
+     */
+    answer: string;
+}
