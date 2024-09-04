@@ -105,14 +105,9 @@ Now we can start calling our micro agents to manipulate the list:
 // Filter and then sort list of albums chronologically
 async function filterAndSortList() {
     // Filter list to only include albums from the 80's
-    console.log(`\x1b[35;1mFiltering albums to the 80's...\x1b[0m`);
     const parallelCompletions = 3;
     const filterGoal = `Filter the list to only include rush albums released in the 1980's.`;
     const filtered = await filterList({goal: filterGoal, list: rushAlbums, parallelCompletions, completePrompt, shouldContinue });
-    if (!filtered.completed) {
-        console.error(filtered.error);
-        return;
-    }
 ```
 
 The `filterList()` agent takes a list as input and filters it using criteria expressed as a `goal`. All agents take a required `completePrompt()` & `shouldContinue()` functions as input and most take a `goal`. The list functions all require the `list` be passed in and many take a `parallelCompletions` parameter as an argument. The `parallelCompletions` argument lets you specific the number of simultaneous request to make to the model and can be used to reduce the latency of certain operations. Note that there's not much point in trying to perform more than 4 parallel completions at a time and you also need to take into account your OpenAI tier otherwise you risk being rate limited.
@@ -127,13 +122,8 @@ Next we want to sort the list to be in chronological order:
 
 ```TS
     // Sort filtered list chronologically
-    console.log(`\x1b[35;1mSorting albums chronologically...\x1b[0m`);
     const sortGoal = `Sort the list of rush studio albums chronologically from oldest to newest.`;
     const sorted = await sortList({goal: sortGoal, list: filtered.value!, parallelCompletions, completePrompt, shouldContinue });
-    if (!sorted.completed) {
-        console.error(sorted.error);
-        return;
-    }
 ```
 
 All of the agents return an object called an `AgentCompletion`. This object has a `completed` property which will be set to true if the request was successful. If the request is successful you can access the returned result from the `value` property. If the request fails (or is cancelled) the `error` property will contain an `Error` object you can inspect.
@@ -149,13 +139,8 @@ Finally we want to leverage the models world knowledge to add additional details
 ```TS
 
     // Add in world knowledge
-    console.log(`\x1b[35;1mGenerating album details...\x1b[0m`);
     const detailsGoal = `Map the item to the output shape.`;
     const details = await mapList<AlbumDetails>({goal: detailsGoal, list: sorted.value!, outputShape, parallelCompletions, completePrompt, shouldContinue });
-    if (!details.completed) {
-        console.error(details.error);
-        return;
-    }
 
     // Print sorted list
     details.value!.forEach((item) => console.log(`Title: \x1b[32m${item.title}\x1b[0m\nDetails: \x1b[32m${item.details}\x1b[0m\n`));
