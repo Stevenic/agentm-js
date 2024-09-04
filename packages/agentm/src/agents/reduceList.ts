@@ -1,4 +1,4 @@
-import { AgentArgs, AgentCompletion, Message, SystemMessage, UserMessage, WithExplanation } from "../types";
+import { AgentArgs, AgentCompletion, JsonSchema, Message, SystemMessage, UserMessage, WithExplanation } from "../types";
 import { composePrompt } from "../composePrompt";
 import { CancelledError } from "../CancelledError";
 
@@ -23,7 +23,14 @@ export interface ReduceListArgs<TValue extends {}> extends AgentArgs {
      */
     initialValue: TValue;
     
-
+    /**
+     * Optional. JSON schema of the output object.
+     * @remarks
+     * This is a JSON Schema of the desired output shape. For OPenAI models that support structured
+     * output, this will be used to guarantee the output shape when `jsonSchema.strict = true`.
+     */
+    jsonSchema?: JsonSchema;
+    
     /**
      * Optional. Temperature the model should use for sampling completions.
      * @remarks
@@ -65,7 +72,7 @@ export interface ReduceListArgs<TValue extends {}> extends AgentArgs {
  * @returns Reduced value.
  */
 export async function reduceList<TValue extends {}>(args: ReduceListArgs<TValue>): Promise<AgentCompletion<TValue>> {
-    const { goal, list, initialValue, maxTokens, completePrompt, shouldContinue } = args;
+    const { goal, list, initialValue, jsonSchema, maxTokens, completePrompt, shouldContinue } = args;
     const temperature = args.temperature ?? 0.0;
     let maxHistory = args.maxHistory ?? 8;
     if (maxHistory < 2) {
@@ -81,7 +88,7 @@ export async function reduceList<TValue extends {}>(args: ReduceListArgs<TValue>
     };
 
     // Enumerate list
-    const useJSON = true;
+    const jsonMode = true;
     const length = list.length;
     const history: Message[] = [];
     for (let index = 0; index < length; index++) {
@@ -93,7 +100,7 @@ export async function reduceList<TValue extends {}>(args: ReduceListArgs<TValue>
         };
 
         // Complete prompt
-        const result: AgentCompletion<WithExplanation<TValue>> = await completePrompt({prompt, system, history, useJSON, temperature, maxTokens});
+        const result: AgentCompletion<WithExplanation<TValue>> = await completePrompt({prompt, system, history, jsonMode, jsonSchema, temperature, maxTokens});
         if (!result.completed) {
             return { completed: false, error: result.error };
         } else if (!await shouldContinue()) {

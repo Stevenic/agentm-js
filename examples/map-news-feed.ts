@@ -1,4 +1,4 @@
-import { mapList, openai } from "agentm";
+import { mapList, openai, JsonSchema } from "agentm";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 
@@ -31,12 +31,38 @@ interface NewsItem {
     pubDate: string;
 }
 
-const outputShape = { title: '<items title>', abstract: '<items abstract parsed from description>', link: '<items link>', pubDate: '<items publish date>' }; 
+const jsonSchema: JsonSchema = {
+    name: 'NewsItem',
+    schema: {
+        type: 'object',
+        properties: {
+            title: { 
+                type: 'string',
+                description: 'items title' 
+            },
+            abstract: { 
+                type: 'string',
+                description: 'items abstract parsed from description' 
+            },
+            link: { 
+                type: 'string',
+                description: 'items link' 
+            },
+            pubDate: { 
+                type: 'string',
+                description: 'items publish date', 
+            }
+        },
+        required: ['title', 'abstract', 'link', 'pubDate'],
+        additionalProperties: false
+    },
+    strict: true
+};
 
 // Extract news feed from file
 const parallelCompletions = 3;
 const goal = `Map the item to the output shape.`;
-mapList<NewsItem>({goal, list, outputShape, parallelCompletions, completePrompt, shouldContinue }).then(result => {;
+mapList<NewsItem>({goal, list, jsonSchema, parallelCompletions, completePrompt, shouldContinue }).then(result => {;
     if (result.completed) {
         console.log(result.value);
     } else {

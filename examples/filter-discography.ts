@@ -41,7 +41,7 @@ interface AlbumDetails {
     details: string;
 }
 
-const outputShape = { title: '<album title>', details: '<detailed summary of album including its release date>' }; 
+const jsonShape = { title: '<album title>', details: '<detailed summary of album including its release date>' }; 
 
 
 // Filter and then sort list of albums chronologically
@@ -68,7 +68,7 @@ async function filterAndSortList() {
     // Add in world knowledge
     console.log(`\x1b[35;1mGenerating album details...\x1b[0m`);
     const detailsGoal = `Map the item to the output shape.`;
-    const details = await mapList<AlbumDetails>({goal: detailsGoal, list: sorted.value!, outputShape, parallelCompletions, completePrompt, shouldContinue });
+    const details = await mapList<AlbumDetails>({goal: detailsGoal, list: sorted.value!, jsonShape, parallelCompletions, completePrompt, shouldContinue });
     if (!details.completed) {
         console.error(details.error);
         return;

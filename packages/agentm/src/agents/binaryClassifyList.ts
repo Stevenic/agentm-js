@@ -1,6 +1,7 @@
-import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types";
+import { AgentArgs, AgentCompletion, JsonSchema, SystemMessage, UserMessage } from "../types";
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
+
 
 /**
  * Arguments for the binaryClassifyList Agent.
@@ -75,7 +76,6 @@ export async function binaryClassifyList<TItem = any>(args: BinaryClassifyListAr
     };
  
     // Enumerate list
-    const useJSON = true;
     const length = list.length;
     const promises: Promise<AgentCompletion<Classification>>[] = [];
     for (let index = 0; index < length; index++) {
@@ -87,7 +87,7 @@ export async function binaryClassifyList<TItem = any>(args: BinaryClassifyListAr
         };
 
         // Queue prompt completion
-        promises.push(completePrompt({prompt, system, useJSON, temperature, maxTokens}));
+        promises.push(completePrompt({prompt, system, jsonSchema, temperature, maxTokens}));
     }
 
     // Wait for prompts to complete and check for errors
@@ -106,6 +106,20 @@ interface Classification {
     explanation: string;
     matches: boolean;
 }
+
+const jsonSchema: JsonSchema = {
+    name: "classification",
+    schema: {
+        type: "object",
+        properties: {
+            explanation: { type: "string" },
+            matches: { type: "boolean" }
+        },
+        required: ["explanation", "matches"],
+        additionalProperties: false
+    },
+    strict: true
+};
 
 const systemPrompt = 
 `You are an expert at classifying items in a list.

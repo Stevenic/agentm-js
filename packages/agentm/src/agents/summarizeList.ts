@@ -1,4 +1,4 @@
-import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types";
+import { AgentArgs, AgentCompletion, JsonSchema, SystemMessage, UserMessage } from "../types";
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 import { variableToString } from "../variableToString";
@@ -77,7 +77,6 @@ export async function summarizeList<TItem = any>(args: SummarizeListArgs<TItem>)
     };
  
     // Enumerate list
-    const useJSON = true;
     const length = list.length;
     const promises: Promise<AgentCompletion<Summarization>>[] = [];
     for (let index = 0; index < length; index++) {
@@ -89,7 +88,7 @@ export async function summarizeList<TItem = any>(args: SummarizeListArgs<TItem>)
         };
 
         // Queue prompt completion
-        promises.push(completePrompt({prompt, system, useJSON, temperature, maxTokens}));
+        promises.push(completePrompt({prompt, system, jsonSchema, temperature, maxTokens}));
     }
 
     // Wait for prompts to complete and check for errors
@@ -108,6 +107,20 @@ interface Summarization {
     explanation: string;
     summary: string;
 }
+
+const jsonSchema: JsonSchema = {
+    name: "summarization",
+    schema: {
+        type: "object",
+        properties: {
+            explanation: { type: "string" },
+            summary: { type: "string" }
+        },
+        required: ["explanation", "summary"],
+        additionalProperties: false
+    },
+    strict: true
+};
 
 const systemPrompt = 
 `You are an expert at summarizing text.

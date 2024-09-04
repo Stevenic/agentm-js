@@ -1,4 +1,4 @@
-import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types";
+import { AgentArgs, AgentCompletion, JsonSchema, SystemMessage, UserMessage } from "../types";
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 
@@ -59,7 +59,6 @@ export async function filterList<TItem>(args: FilterListArgs<TItem>): Promise<Ag
 
  
     // Enumerate list
-    const useJSON = true;
     const length = list.length;
     const promises: Promise<AgentCompletion<Decision>>[] = [];
     for (let index = 0; index < length; index++) {
@@ -71,7 +70,7 @@ export async function filterList<TItem>(args: FilterListArgs<TItem>): Promise<Ag
         };
 
         // Queue prompt completion
-        promises.push(completePrompt({prompt, system, useJSON, temperature, maxTokens}));
+        promises.push(completePrompt({prompt, system, jsonSchema, temperature, maxTokens}));
     }
 
     // Wait for prompts to complete and check for errors
@@ -98,6 +97,20 @@ interface Decision {
     explanation: string;
     remove_item: boolean;
 }
+
+const jsonSchema: JsonSchema = {
+    name: "decision",
+    schema: {
+        type: "object",
+        properties: {
+            explanation: { type: "string" },
+            remove_item: { type: "boolean" }
+        },
+        required: ["explanation", "remove_item"],
+        additionalProperties: false
+    },
+    strict: true
+};
 
 const systemPrompt = 
 `You are an expert at filtering items in a list.

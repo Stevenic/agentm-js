@@ -1,4 +1,4 @@
-import { AgentArgs, AgentCompletion, SystemMessage, UserMessage } from "../types";
+import { AgentArgs, AgentCompletion, JsonSchema, SystemMessage, UserMessage } from "../types";
 import { composePrompt } from "../composePrompt";
 import { parallelCompletePrompt } from "../parallelCompletePrompt";
 
@@ -82,8 +82,7 @@ export async function sortList<TItem>(args: SortListArgs<TItem>): Promise<AgentC
             };
 
             // Complete prompt
-            const useJSON = true;
-            const result = await completePrompt({prompt, system, useJSON, temperature, maxTokens});
+            const result = await completePrompt({prompt, system, jsonSchema, temperature, maxTokens});
             if (!result.completed) {
                 throw result.error;
             }
@@ -114,6 +113,20 @@ interface Decision {
     explanation: string;
     sort_item_a: 'BEFORE' | 'EQUAL' | 'AFTER';
 }
+
+const jsonSchema: JsonSchema = {
+    name: "decision",
+    schema: {
+        type: "object",
+        properties: {
+            explanation: { type: "string" },
+            sort_item_a: { type: "string", enum: ["BEFORE", "EQUAL", "AFTER"] }
+        },
+        required: ["explanation", "sort_item_a"],
+        additionalProperties: false
+    },
+    strict: true
+};
 
 const systemPrompt = 
 `You are an expert in sorting a list of items.

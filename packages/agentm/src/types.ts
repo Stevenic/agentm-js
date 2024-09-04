@@ -115,7 +115,7 @@ export interface PromptCompletionArgs {
     /**
      * Optional. Indicates whether the model should always return JSON as it's output.
      */
-    useJSON?: boolean;
+    jsonMode?: boolean;
 
     /**
      * Optional. JSON schema used to enforce the models output.
@@ -174,6 +174,16 @@ export interface JsonSchema {
      * The schema definition.
      */
     schema: Schema;
+
+    /**
+     * Optional. Description of when the schema should be used.
+     */
+    description?: string;
+
+    /**
+     * Optional. Indicates whether the schema should be strictly enforced.
+     */
+    strict?: boolean;
 }
 
 // Message Types
