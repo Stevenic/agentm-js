@@ -51,7 +51,7 @@ export interface SummarizedItem<TItem> {
     summary: string;
 
     /**
-     * The item that was summarized
+     * The item that was summarized.
      */
     item: TItem;
 }

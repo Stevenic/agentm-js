@@ -1,4 +1,5 @@
 export * from "./binaryClassifyList";
+export * from "./chainOfThought";
 export * from "./classifyList";
 export * from "./filterList";
 export * from "./mapList";
