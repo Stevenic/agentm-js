@@ -74,4 +74,5 @@ function parseFeed(data: string): string[] {
 
     return list;
 }
+
 main();

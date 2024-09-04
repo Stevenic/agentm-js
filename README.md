@@ -7,6 +7,7 @@ The initial release of AgentM includes support for calling OpenAI's GPT-4o famil
 - **chainOfThought** - Uses structured outputs to separate the models chain-of-thought reasoning from it's answer. Useful to both get the model to perform chain-of-thought reasoning and to hide all of the details from a user.
 - **classifyList** - Can classify items in a list using a provided list of categories. Useful for everything for sentiment classification to categorizing documents. Another work horse agent.
 - **filterList** - Able to filter the items in a list based upon some criteria. It's useful where you want to make an intelligent decision around whether to keep an item in the list or remove it. Like mapList, this agent is a work horse you'll use over and over.
+- **generateObject** - Generates a new instance of a structured object. Useful for doing things like generating the code where you only want the code back or generating dynamic UI.
 - **groundedAnswer** - Uses a hallucination guard to ground the models answer within a provided context. Can be paired with RAG strategies to implement a Q&A system. 
 - **mapList** - Takes a list of items as input and maps each item to a structured output. This is useful for performing a wide range of GenAI tasks like intelligently parsing a web page or transforming records written in one language to a different language.
 - **projectList** - Creates projections for a list of items using a template. Similar to summarizeList but the template gives much better control over the formatting of the models response.
