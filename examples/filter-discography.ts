@@ -6,7 +6,7 @@ dotenv.config();
 
 // Initialize OpenAI 
 const apiKey = process.env.OPENAI_API_KEY!;
-const model = 'gpt-4o-mini';
+const model = 'gpt-4o-2024-08-06';
 const completePrompt = openai({ apiKey, model });
 
 // Create randomized list of rushes studio albums
@@ -38,7 +38,7 @@ interface AlbumDetails {
     details: string;
 }
 
-const jsonShape = { title: '<album title>', details: '<detailed summary of album including its release date>' }; 
+const jsonShape = { title: '<album title>', details: '<detailed summary of album. include the release date, critic reviews, and a track listing>' }; 
 
 
 // Filter and then sort list of albums chronologically

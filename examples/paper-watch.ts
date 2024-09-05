@@ -40,8 +40,8 @@ async function main() {
     console.log(`\x1b[35;1mGenerating projections for ${filtered.value!.length} of ${feed.length} papers...\x1b[0m`);
     const goal = `Map the news item to the template.`;
     const projections = await projectList({goal, list: filtered.value!, template, parallelCompletions, completePrompt })
-    if (!filtered.completed) {
-        console.error(filtered.error);
+    if (!projections.completed) {
+        console.error(projections.error);
         return;
     }
 

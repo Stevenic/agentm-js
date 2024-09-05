@@ -38,10 +38,13 @@ const jsonSchema: JsonSchema = {
     strict: true
 };
 
+// Provide additional context
+const context = ``;
+
 // Ask a question using chain of thought
 const maxTokens = 4000;
 const goal = `Write a small typescript program that ${task}.`;
-generateObject<SourceCode>({goal, jsonSchema, maxTokens, completePrompt }).then(result => {;
+generateObject<SourceCode>({goal, jsonSchema, maxTokens, context, completePrompt }).then(result => {;
     if (result.completed) {
         console.log(`\x1b[32m${result.value?.code}\x1b[0m`);
     } else {
