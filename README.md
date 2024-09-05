@@ -3,6 +3,7 @@ AgentM is a library of "Micro Agents" that make it easy to add reliable intellig
 
 The initial release of AgentM includes support for calling OpenAI's GPT-4o family of models and makes heavy use of OpenAI's new [Structured Outputs](https://openai.com/index/introducing-structured-outputs-in-the-api/) feature which dramatically improves the reliability of working with LLM's. The library includes the following micro agents:
 
+- **argumentParser** - Parses a set of arguments expressed using natural language into a strongly typed object. This can be used to create CLI tools that you can give commands to using natural language. No need for flags or switches anymore. 
 - **binaryClassifyList** - Provides a binary true/false classification of items in a list. The results should be similar to filterList but without removing any items from the list.
 - **chainOfThought** - Uses structured outputs to separate the models chain-of-thought reasoning from it's answer. Useful to both get the model to perform chain-of-thought reasoning and to hide all of the details from a user.
 - **classifyList** - Can classify items in a list using a provided list of categories. Useful for everything for sentiment classification to categorizing documents. Another work horse agent.

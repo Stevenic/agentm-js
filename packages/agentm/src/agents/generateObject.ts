@@ -30,7 +30,7 @@ export interface GenerateObjectArgs extends AgentArgs {
     maxTokens?: number;
 
     /**
-     * Optional. Additional context to include in the prompt.
+     * Optional. Additional context to include in the system prompt.
      */
     context?: string;
 
