@@ -30,6 +30,11 @@ export interface GenerateObjectArgs extends AgentArgs {
     maxTokens?: number;
 
     /**
+     * Optional. Additional context to include in the prompt.
+     */
+    context?: string;
+
+    /**
      * Optional. Instructions to further customize the system prompt sent to the model.
      */
     instructions?: string;
@@ -45,10 +50,11 @@ export async function generateObject<TObject extends {}>(args: GenerateObjectArg
     const temperature = args.temperature ?? 0.0;
 
     // Compose system message
+    const context = args.context ? `<CONTEXT>\n${args.context}\n\n` : '';
     const instructions = args.instructions ? `\n${args.instructions}` : '';
     const system: SystemMessage = {
         role: 'system',
-        content: composePrompt(systemPrompt, {instructions})
+        content: composePrompt(systemPrompt, {context, instructions})
     };
  
     // Complete the prompt
@@ -60,5 +66,5 @@ export async function generateObject<TObject extends {}>(args: GenerateObjectArg
 }
 
 const systemPrompt = 
-`<INSTRUCTIONS>
+`{{context}}<INSTRUCTIONS>
 Return a JSON object based on the users directions.{{instructions}}`;
