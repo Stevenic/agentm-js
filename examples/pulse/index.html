@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentM Pulse</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1e1e1e; color: #fff; height: 100vh; display: flex; }
+        .chat-panel { width: 30%; background: #2b2b2b; padding: 10px; display: flex; flex-direction: column; }
+        .chat-header { font-size: 24px; padding: 10px; background: #3a3a3a; text-align: center; border-bottom: 1px solid #444; }
+        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; margin-top: 10px; background: #2b2b2b; border: 1px solid #444; }
+        .chat-message { margin-bottom: 10px; padding: 8px; background: #4a4a4a; border-radius: 5px; }
+        .reset-link { text-align: right; margin-bottom: 5px; }
+        .reset-link a { font-size: 12px; color: #aaa; text-decoration: none; }
+        .reset-link a:hover { color: #ccc; }
+        form { display: flex; flex-direction: column; width: 100%; }
+        .chat-input, .chat-submit { padding: 10px; border: none; border-radius: 5px; width: 100%; }
+        .chat-input { background: #444; color: white; margin-bottom: 10px; }
+        .chat-submit { background: #5a5a5a; cursor: pointer; }
+        .chat-submit:hover { background: #6a6a6a; }
+        .viewer-panel { width: 70%; padding: 20px; background: #1e1e1e; display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 1px solid #444; text-align: center; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .welcome-message { font-size: 36px; font-weight: bold; color: #f0f0f0; margin-bottom: 20px; }
+        .instructions { font-size: 18px; color: #ccc; max-width: 600px; line-height: 1.6; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.1.0/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+</head>
+<body>
+    <div class="chat-panel">
+        <div class="chat-header">Chat</div>
+        <div class="chat-messages" id="chatMessages"><div class="chat-message">AgentM: what can I show you?</div></div>
+        <div class="reset-link"><a href="/reset">Reset</a></div>
+        <form action="/" method="POST" id="chatForm">
+            <input type="text" class="chat-input" id="chatInput" name="message" placeholder="Type a message...">
+            <button type="submit" class="chat-submit">Send</button>
+        </form>
+    </div>
+    <div class="viewer-panel" id="viewerPanel">
+        <div class="welcome-message">AgentM Pulse</div>
+        <div class="instructions">To get started, type your message and click "Send". Conversations will appear in the chat panel and visualization will appear in this viewer.</div>
+    </div>
+    <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
+    <script>
+        // BEGIN:KEEP
+        document.getElementById("chatInput").focus();
+        document.getElementById("chatForm").addEventListener('submit', () => {
+            document.getElementById("loadingOverlay").style.display = 'flex';
+        });
+        // END:KEEP
+
+        // BEGIN:OTHER CODE
+
+        // END:OTHER CODE
+    </script>
+</body>
+</html>
