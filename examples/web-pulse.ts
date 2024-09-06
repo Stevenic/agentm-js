@@ -79,10 +79,9 @@ The basic layout structure of the page needs to be maintained.
 You're free to write any additional CSS or JavaScript to enhance the page.
 Use the following libraries when generating interactive elements:
 
-- D3 for data visualizations.
-- marked for markdown rendering.
-- mermaid for diagrams.
-- katex for math rendering.`;
+- D3 for data visualizations. Use a different color for each dimension but base your colors off the pages color scheme.
+- marked for markdown rendering and code highlighting.
+- mermaid for diagrams.`;
 
 async function generateNextPage(page_state: string, message: string): Promise<string> {
     // Provide additional context
