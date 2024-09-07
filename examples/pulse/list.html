@@ -19,12 +19,15 @@
         .chat-input { background: #444; color: white; margin-bottom: 10px; }
         .chat-submit { background: #5a5a5a; cursor: pointer; }
         .chat-submit:hover { background: #6a6a6a; }
-        .viewer-panel { width: 70%; padding: 20px; background: #1e1e1e; display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 1px solid #444; text-align: center; }
+        .viewer-panel { width: 70%; padding: 10px; background: #1e1e1e; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border-left: 1px solid #444; text-align: center; }
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .welcome-message { font-size: 36px; font-weight: bold; color: #f0f0f0; margin-bottom: 20px; }
         .instructions { font-size: 18px; color: #ccc; max-width: 600px; line-height: 1.6; }
+        .saved-pages { font-size: 24px; color: #f0f0f0; margin-bottom: 20px; background: #3a3a3a; padding: 10px; border-bottom: 1px solid #444; width: 100%; text-align: center; }
+        .page-link { color: #fff; text-decoration: none; padding: 8px 10px; border-radius: 5px; display: block; margin: 5px auto; }
+        .page-link:hover { background: #4a4a4a; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
@@ -33,7 +36,9 @@
 <body>
     <div class="chat-panel">
         <div class="chat-header">Chat</div>
-        <div class="chat-messages" id="chatMessages"><div class="chat-message">AgentM: what can I show you?</div></div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message">AgentM: here's a list of saved pages.</div>
+        </div>
         <div class="link-group">
             <a href="#" id="saveLink">Save</a>
             <a href="/list" id="listLink">List</a>
@@ -45,13 +50,12 @@
         </form>
     </div>
     <div class="viewer-panel" id="viewerPanel">
-        <div class="welcome-message">AgentM Pulse</div>
-        <div class="instructions">To get started, type your message and click "Send". Conversations will appear in the chat panel and visualization will appear in this viewer.</div>
+        <div class="saved-pages">Saved Pages</div>
+        <div id="pagesList"></div>
     </div>
-    <div id="thoughts" style="display: none;">I need to generate a UI with chat & viewer panels and then greet the user.</div>
+    <div id="thoughts" style="display: none;">I have removed the light gray background from each row in the viewer panel to create a more cohesive and cleaner design. This change aligns with the user's request for a more streamlined appearance.</div>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
     <script>
-        // BEGIN:KEEP
         document.getElementById("chatInput").focus();
         document.getElementById("chatForm").addEventListener('submit', () => {
             document.getElementById("loadingOverlay").style.display = 'flex';
@@ -66,11 +70,22 @@
         document.getElementById("resetLink").addEventListener("click", function() {
             window.location.href = `${window.location.pathname}?reset=true`;
         });
-        // END:KEEP
 
-        // BEGIN:OTHER CODE
-
-        // END:OTHER CODE
+        // Fetch saved pages and display them
+        fetch('/api/pages')
+            .then(response => response.json())
+            .then(data => {
+                const pagesList = document.getElementById('pagesList');
+                pagesList.innerHTML = ''; // Clear existing content
+                data.forEach(page => {
+                    const pageLink = document.createElement('a');
+                    pageLink.href = `/${page}`;
+                    pageLink.textContent = page;
+                    pageLink.className = 'page-link';
+                    pagesList.appendChild(pageLink);
+                });
+            })
+            .catch(error => console.error('Error fetching pages:', error));
     </script>
 </body>
 </html>

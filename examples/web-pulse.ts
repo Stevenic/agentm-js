@@ -19,6 +19,18 @@ const PORT = 3000;
 // Middleware to parse URL-encoded data (form data)
 app.use(express.urlencoded({ extended: true }));
 
+// Define an route to return a list of all pages
+app.get('/api/pages', (req, res) => {
+    // Enumerate all files in the pulse directory
+    // - exclude the index.html file
+    // - remove the .html extension from the file names
+    // - sort the file names alphabetically
+    const pages = fs.readdirSync(path.join(__dirname, 'pulse')).filter(file => file !== 'index.html').map(file => file.replace('.html', '')).sort();
+
+    // Return the list of pages as a JSON array
+    res.json(pages);
+});
+
 // Define a route to serve a fetched page
 app.get('/', (req, res) => {
     const reset = req.query.reset === 'true';
