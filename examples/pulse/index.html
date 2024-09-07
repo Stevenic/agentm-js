@@ -11,9 +11,9 @@
         .chat-header { font-size: 24px; padding: 10px; background: #3a3a3a; text-align: center; border-bottom: 1px solid #444; }
         .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; margin-top: 10px; background: #2b2b2b; border: 1px solid #444; }
         .chat-message { margin-bottom: 10px; padding: 8px; background: #4a4a4a; border-radius: 5px; }
-        .reset-link { text-align: right; margin-bottom: 5px; }
-        .reset-link a { font-size: 12px; color: #aaa; text-decoration: none; }
-        .reset-link a:hover { color: #ccc; }
+        .link-group { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .link-group a { font-size: 12px; color: #aaa; text-decoration: none; }
+        .link-group a:hover { color: #ccc; }
         form { display: flex; flex-direction: column; width: 100%; }
         .chat-input, .chat-submit { padding: 10px; border: none; border-radius: 5px; width: 100%; }
         .chat-input { background: #444; color: white; margin-bottom: 10px; }
@@ -34,7 +34,10 @@
     <div class="chat-panel">
         <div class="chat-header">Chat</div>
         <div class="chat-messages" id="chatMessages"><div class="chat-message">AgentM: what can I show you?</div></div>
-        <div class="reset-link"><a href="/reset">Reset</a></div>
+        <div class="link-group">
+            <a href="#" id="saveLink">Save</a>
+            <a href="#" id="resetLink">Reset</a>
+        </div>
         <form action="/" method="POST" id="chatForm">
             <input type="text" class="chat-input" id="chatInput" name="message" placeholder="Type a message...">
             <button type="submit" class="chat-submit">Send</button>
@@ -44,12 +47,23 @@
         <div class="welcome-message">AgentM Pulse</div>
         <div class="instructions">To get started, type your message and click "Send". Conversations will appear in the chat panel and visualization will appear in this viewer.</div>
     </div>
+    <div id="thoughts" style="display: none;">I need to generate a UI with chat & viewer panels and then greet the user.</div>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
     <script>
         // BEGIN:KEEP
         document.getElementById("chatInput").focus();
         document.getElementById("chatForm").addEventListener('submit', () => {
             document.getElementById("loadingOverlay").style.display = 'flex';
+            document.getElementById("chatForm").action = window.location.pathname;
+        });
+        document.getElementById("saveLink").addEventListener("click", function() {
+            const pageName = prompt("Enter the name of the page to save as:");
+            if (pageName) {
+                window.location.href = `${window.location.pathname}?save-as=${encodeURIComponent(pageName)}`;
+            }
+        });
+        document.getElementById("resetLink").addEventListener("click", function() {
+            window.location.href = `${window.location.pathname}?reset=true`;
         });
         // END:KEEP
 
