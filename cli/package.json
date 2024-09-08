@@ -2,7 +2,7 @@
     "name": "agentm",
     "author": "Steven Ickman",
     "description": "Command Line Interface for the AgentM Micro Agent Library",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "license": "MIT",
     "keywords": [
         "gpt"
@@ -39,5 +39,13 @@
         "start": "node ./bin/agentm.js",
         "test": "npm-run-all build test:mocha",
         "test:mocha": "nyc mocha tests"
-    }
+    },
+    "files": [
+        "dist",
+        "bin",
+        "src",
+        "example-pages",
+        "required-pages",
+        "images"
+    ]
 }

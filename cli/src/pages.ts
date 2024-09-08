@@ -42,7 +42,7 @@ export async function loadPageState(pagesFolder: string, name: string, reset: bo
 }
 
 export function normalizePageName(name: string|undefined): string|undefined {
-    return typeof name == 'string' && name.length > 0 ? name.replace(/[^a-z0-9 \-_\[\]\(\)\{\}@#\$%&]/gi, '_').toLowerCase() : undefined;
+    return typeof name == 'string' && name.length > 0 ? name.replace(/[^a-z0-9\-_\[\]\(\)\{\}@#\$%&]/gi, '_').toLowerCase() : undefined;
 }
 
 export async function savePageState(pagesFolder: string, name: string, content: string): Promise<void> {
