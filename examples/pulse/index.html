@@ -33,7 +33,9 @@
 <body>
     <div class="chat-panel">
         <div class="chat-header">Chat</div>
-        <div class="chat-messages" id="chatMessages"><div class="chat-message">AgentM: what can I show you?</div></div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message">AgentM: what can I create for you?</div>
+        </div>
         <div class="link-group">
             <a href="#" id="saveLink">Save</a>
             <a href="/list" id="listLink">List</a>
@@ -46,12 +48,12 @@
     </div>
     <div class="viewer-panel" id="viewerPanel">
         <div class="welcome-message">AgentM Pulse</div>
-        <div class="instructions">To get started, type your message and click "Send". Conversations will appear in the chat panel and visualization will appear in this viewer.</div>
+        <div class="instructions">To get started, type your message and click "Send". Conversations will appear in the chat panel and visualization will appear in this viewer. Click "List" to view saved pages and templates.</div>
     </div>
     <div id="thoughts" style="display: none;">I need to generate a UI with chat & viewer panels and then greet the user.</div>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
     <script>
-        // BEGIN:KEEP
+        // Basic chat functionality
         document.getElementById("chatInput").focus();
         document.getElementById("chatForm").addEventListener('submit', () => {
             document.getElementById("loadingOverlay").style.display = 'flex';
@@ -66,11 +68,12 @@
         document.getElementById("resetLink").addEventListener("click", function() {
             window.location.href = `${window.location.pathname}?reset=true`;
         });
-        // END:KEEP
+        window.onload = function() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
 
-        // BEGIN:OTHER CODE
-
-        // END:OTHER CODE
+        // Other code
     </script>
 </body>
 </html>

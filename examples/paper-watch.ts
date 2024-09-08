@@ -1,4 +1,4 @@
-import { openai, filterList, projectList } from "agentm";
+import { openai, filterList, projectList } from "agentm-core";
 import * as dotenv from "dotenv";
 import fetch from 'node-fetch';
 

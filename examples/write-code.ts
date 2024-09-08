@@ -1,4 +1,4 @@
-import { openai, generateObject, JsonSchema } from "agentm";
+import { openai, generateObject, JsonSchema } from "agentm-core";
 import * as dotenv from "dotenv";
 
 // Load environment variables from .env file

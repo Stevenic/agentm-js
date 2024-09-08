@@ -1,4 +1,4 @@
-import { mapList, openai, JsonSchema } from "agentm";
+import { mapList, openai, JsonSchema } from "agentm-core";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 

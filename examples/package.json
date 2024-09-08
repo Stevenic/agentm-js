@@ -15,7 +15,7 @@
     },
     "dependencies": {
         "@types/node": "^18.11.18",
-        "agentm": "0.4.0",
+        "agentm-core": "0.5.0",
         "dotenv": "^16.4.5",
         "express": "^4.19.2",
         "jsonschema": "^1.4.1",

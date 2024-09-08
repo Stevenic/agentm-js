@@ -1,4 +1,4 @@
-import { openai, projectList } from "agentm";
+import { openai, projectList } from "agentm-core";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 

@@ -1,4 +1,4 @@
-import { openai, summarizeList } from "agentm";
+import { openai, summarizeList } from "agentm-core";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 

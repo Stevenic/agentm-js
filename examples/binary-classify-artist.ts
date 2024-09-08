@@ -1,4 +1,4 @@
-import { openai, binaryClassifyList } from "agentm";
+import { openai, binaryClassifyList } from "agentm-core";
 import * as dotenv from "dotenv";
 
 // Load environment variables from .env file

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentM Pulse</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1e1e1e; color: #fff; height: 100vh; display: flex; }
+        .chat-panel { width: 30%; background: #2b2b2b; padding: 10px; display: flex; flex-direction: column; }
+        .chat-header { font-size: 24px; padding: 10px; background: #3a3a3a; text-align: center; border-bottom: 1px solid #444; }
+        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; margin-top: 10px; background: #2b2b2b; border: 1px solid #444; }
+        .chat-message { margin-bottom: 10px; padding: 8px; background: #4a4a4a; border-radius: 5px; }
+        .chat-message p:not(:last-child) { margin-bottom: 1em; }
+        .chat-message p strong { font-weight: bolder; }
+        .link-group { display: flex; justify-content: flex-end; margin-top: 5px; margin-bottom: 5px; }
+        .link-group a { font-size: 12px; color: #aaa; text-decoration: none; margin-left: 10px; }
+        .link-group a:hover { color: #ccc; }
+        form { display: flex; flex-direction: column; width: 100%; }
+        .chat-input, .chat-submit { padding: 10px; border: none; border-radius: 5px; width: 100%; }
+        .chat-input { background: #444; color: white; margin-bottom: 10px; }
+        .chat-submit { background: #5a5a5a; cursor: pointer; }
+        .chat-submit:hover { background: #6a6a6a; }
+        .viewer-panel { width: 70%; padding: 10px; background: #1e1e1e; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border-left: 1px solid #444; text-align: center; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .dialog-title { font-size: 24px; color: #f0f0f0; background: #3a3a3a; padding: 10px; border-bottom: 1px solid #444; width: 100%; text-align: center; }
+        .dialog-content { font-size: 18px; color: #ccc; padding: 10px; margin-top:10px; flex-grow: 1; width: 100%; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #ccc; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #444; background: #333; color: #fff; }
+        .form-group textarea { resize: vertical; height: 100px; }
+        .disabled { background: #555; cursor: not-allowed; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.1.0/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="chat-panel">
+        <div class="chat-header">Chat</div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message">
+                <p><strong>AgentM:</strong> Please fill in all required fields in the settings form and click 'Update'. Ensure your OpenAI API Key is valid and select the model you wish to use.</p>
+                <p>Max Output Tokens controls how large of a page that can be rendered and Additional Instructions can be used to provide further prompt instructions for how pages should be updated.</p>
+            </div>
+        </div>
+        <div class="link-group">
+            <a href="#" id="saveLink">Save</a>
+            <a href="/list" id="listLink">List</a>
+            <a href="#" id="resetLink">Reset</a>
+        </div>
+        <form action="/" method="POST" id="chatForm">
+            <input type="text" class="chat-input" id="chatInput" name="message" placeholder="Type a message...">
+            <button type="submit" class="chat-submit">Send</button>
+        </form>
+    </div>
+    <div class="viewer-panel" id="viewerPanel">
+        <div class="dialog-title">Settings</div>
+        <div class="dialog-content">
+            <form action="/api/settings" method="POST" id="settingsForm">
+                <div class="form-group">
+                    <label for="openaiApiKey">Open AI API Key</label>
+                    <input type="password" id="openaiApiKey" name="openaiApiKey" placeholder="Enter your API Key" required>
+                </div>
+                <div class="form-group">
+                    <label for="model">Model</label>
+                    <select id="model" name="model" required>
+                        <option value="">Select a model</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="maxTokens">Max Output Tokens</label>
+                    <input type="number" id="maxTokens" name="maxTokens" placeholder="Enter max token count" required>
+                </div>
+                <div class="form-group">
+                    <label for="instructions">Additional Instructions</label>
+                    <textarea id="instructions" name="instructions" placeholder="Enter any additional instructions"></textarea>
+                </div>
+                <button type="submit" class="chat-submit" action="/api/submit">Update</button>
+            </form>
+            <p style="color: #aaa; margin-top: 10px;">An OpenAI API Key is required which can be generated from the <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #3498db;">API Keys</a> section of the OpenAI Dashboard.</p>
+        </div>
+    </div>
+    <div id="thoughts" style="display: none;">The user requested to clear the chat history and leave a single message with instructions for updating the settings. The chat panel now includes this request and a response from AgentM. The viewer panel remains unchanged, displaying the settings form. JavaScript will be used to disable the chat input if the configuration is not complete.</div>
+    <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
+    <script>
+        // Basic chat functionality
+        document.getElementById("chatInput").focus();
+        document.getElementById("chatForm").addEventListener('submit', (event) => {
+            document.getElementById("loadingOverlay").style.display = 'flex';
+            document.getElementById("chatForm").action = window.location.pathname;
+        });
+        document.getElementById("saveLink").addEventListener("click", function() {
+            const pageName = prompt("Enter the name of the page to save as:");
+            if (pageName) {
+                window.location.href = `${window.location.pathname}/save?name=${encodeURIComponent(pageName)}`;
+            }
+        });
+        document.getElementById("resetLink").addEventListener("click", function() {
+            window.location.href = `${window.location.pathname}/reset`;
+        });
+        window.onload = function() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+
+        // Form validation
+        document.getElementById('settingsForm').addEventListener('submit', function(event) {
+            const openaiApiKey = document.getElementById('openaiApiKey').value;
+            const model = document.getElementById('model').value;
+            const maxTokens = document.getElementById('maxTokens').value;
+
+            if (!openaiApiKey || !model || !maxTokens) {
+                alert('Please fill in all fields before submitting.');
+                event.preventDefault();
+            }
+        });
+
+        // Fetch settings and populate form
+        let isConfigured = false;
+        fetch('/api/settings')
+            .then(response => response.json())
+            .then(data => {
+                const openaiApiKey = data.openaiApiKey || '';
+                const model = data.model || '';
+                const maxTokens = data.maxTokens || '';
+                isConfigured = openaiApiKey && model && maxTokens;
+                document.getElementById('openaiApiKey').value = openaiApiKey;
+                document.getElementById('model').innerHTML = data.availableModels.map(model => `<option value="${model}">${model}</option>`).join('');
+                document.getElementById('model').value = model;
+                document.getElementById('maxTokens').value = maxTokens;
+                document.getElementById('instructions').value = data.instructions || '';
+
+                // Disable chat input if not configured
+                if (!isConfigured) {
+                    document.getElementById('chatInput').disabled = true;
+                    document.getElementById('chatInput').classList.add('disabled');
+                }
+            })
+            .catch(error => console.error('Error fetching settings:', error));
+    </script>
+</body>
+</html>

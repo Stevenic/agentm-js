@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentM Pulse</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', Courier, monospace; background: #000; color: #0f0; height: 100vh; display: flex; }
+        .chat-panel { width: 70%; background: #111; padding: 10px; display: flex; flex-direction: column; }
+        .chat-header { font-size: 24px; padding: 10px; background: #222; text-align: center; border-bottom: 1px solid #333; }
+        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; margin-top: 10px; background: #111; border: 1px solid #333; }
+        .chat-message { margin-bottom: 10px; padding: 8px; background: #333; border-radius: 5px; }
+        .link-group { display: flex; justify-content: flex-end; margin-top: 5px; margin-bottom: 5px; }
+        .link-group a { font-size: 12px; color: #0f0; text-decoration: none; margin-left: 10px; }
+        .link-group a:hover { color: #0c0; }
+        form { display: flex; flex-direction: column; width: 100%; }
+        .chat-input, .chat-submit { padding: 10px; border: none; border-radius: 5px; width: 100%; }
+        .chat-input { background: #333; color: #0f0; margin-bottom: 10px; }
+        .chat-submit { background: #444; cursor: pointer; }
+        .chat-submit:hover { background: #555; }
+        .viewer-panel { width: 30%; padding: 10px; background: #000; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border-left: 1px solid #333; text-align: center; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .sidebar-title { font-size: 24px; color: #0f0; background: #222; padding: 10px; border-bottom: 1px solid #333; width: 100%; text-align: center; }
+        .sidebar-content { font-size: 18px; color: #0f0; padding: 10px; margin-top:10px; flex-grow: 1; width: 100%; display: flex; flex-direction: column; }
+        .inventory, .progress { background: #111; border: 1px solid #333; border-radius: 5px; padding: 10px; margin-bottom: 10px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="chat-panel">
+        <div class="chat-header">Chat</div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message">AgentM: Welcome to the world of Zork! Prepare yourself for an adventure filled with mystery and excitement. Type 'start' to begin your journey.</div>
+        </div>
+        <div class="link-group">
+            <a href="#" id="saveLink">Save</a>
+            <a href="/list" id="listLink">List</a>
+            <a href="#" id="resetLink">Reset</a>
+        </div>
+        <form action="/" method="POST" id="chatForm">
+            <input type="text" class="chat-input" id="chatInput" name="message" placeholder="Type a message...">
+            <button type="submit" class="chat-submit">Send</button>
+        </form>
+    </div>
+    <div class="viewer-panel" id="viewerPanel">
+        <div class="sidebar-title">Zork</div>
+        <div class="sidebar-content">
+            <div class="inventory">Inventory: <ul id="inventoryList"></ul></div>
+            <div class="progress">Progress: <ul id="progressList"></ul></div>
+        </div>
+        <div id="locations" class="hidden">Locations Visited: [] | Adjacent Locations: []</div>
+    </div>
+    <div id="thoughts" style="display: none;">I have cleared the chat history and set the Agent Message to introduce the game and prompt the user to start their adventure. This sets the stage for the user to engage with the game narrative.</div>
+    <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
+    <script>
+        // Basic chat functionality
+        document.getElementById("chatInput").focus();
+        document.getElementById("chatForm").addEventListener('submit', () => {
+            document.getElementById("loadingOverlay").style.display = 'flex';
+            document.getElementById("chatForm").action = window.location.pathname;
+        });
+        document.getElementById("saveLink").addEventListener("click", function() {
+            const pageName = prompt("Enter the name of the page to save as:");
+            if (pageName) {
+                window.location.href = `${window.location.pathname}?save-as=${encodeURIComponent(pageName)}`;
+            }
+        });
+        document.getElementById("resetLink").addEventListener("click", function() {
+            window.location.href = `${window.location.pathname}?reset=true`;
+        });
+        window.onload = function() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+
+        // Other code
+    </script>
+</body>
+</html>

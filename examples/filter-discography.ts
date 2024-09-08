@@ -1,4 +1,4 @@
-import { openai, filterList, sortList, mapList } from "agentm";
+import { openai, filterList, sortList, mapList } from "agentm-core";
 import * as dotenv from "dotenv";
 
 // Load environment variables from .env file

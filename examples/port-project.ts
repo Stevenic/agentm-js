@@ -1,4 +1,4 @@
-import { argumentParser, ArgumentSchema, generateObject, JsonSchema, openai } from 'agentm';
+import { argumentParser, ArgumentSchema, generateObject, JsonSchema, openai } from 'agentm-core';
 import * as dotenv from "dotenv";
 import * as fs from 'fs/promises';
 import * as path from 'path';

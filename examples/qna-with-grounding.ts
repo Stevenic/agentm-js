@@ -1,4 +1,4 @@
-import { openai, groundedAnswer } from "agentm";
+import { openai, groundedAnswer } from "agentm-core";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 

@@ -1,4 +1,4 @@
-import { generateObject, JsonSchema, openai } from 'agentm';
+import { generateObject, JsonSchema, openai } from 'agentm-core';
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
@@ -7,20 +7,40 @@ import * as dotenv from "dotenv";
 // Load environment variables from .env file
 dotenv.config();
 
+const settings = {
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? undefined,
+    OPENAI_MODELS: ['gpt-4o-2024-08-06', 'gpt-4o-mini'],
+    MODEL: process.env.MODEL ?? 'gpt-4o-2024-08-06',
+    MAX_TOKENS: parseInt(process.env.MAX_TOKENS ?? '12000'),
+};
+
 // Initialize OpenAI 
-const apiKey = process.env.OPENAI_API_KEY!;
-//const model = 'gpt-4o-mini';
-const model = 'gpt-4o-2024-08-06';
-const completePrompt = openai({ apiKey, model });
+const completePrompt = openai({ 
+    apiKey: settings.OPENAI_API_KEY!, 
+    model: settings.MODEL 
+});
 
 const app = express();
-const PORT = 3000;
+const PORT = 4242;
 
 // Middleware to parse URL-encoded data (form data)
 app.use(express.urlencoded({ extended: true }));
 
 // Define an route to return a list of all pages
 app.get('/api/pages', (req, res) => {
+    // Fetch all pages from the pulse directory
+    const all = fs.readdirSync(path.join(__dirname, 'pulse')).filter(file => file !== 'index.html').map(file => file.replace('.html', '')).sort();
+    
+    // Move [templates] to end of array
+    const pages = all.filter(page => !page.startsWith('['));
+    const templates = all.filter(page => page.startsWith('['));
+    pages.push(...templates);
+    
+    res.json(pages);
+});
+
+// Define a route to return settings
+app.get('/api/settings', (req, res) => {
     // Enumerate all files in the pulse directory
     // - exclude the index.html file
     // - remove the .html extension from the file names
@@ -43,7 +63,7 @@ app.get('/', (req, res) => {
     // Check for save-as
     if (req.query['save-as']) {
         // Format save-as page name to be all lowercase and not have spaces or special characters
-        const name = (req.query['save-as'] as string).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const name = (req.query['save-as'] as string).replace(/[^a-z0-9\[\]\-]/gi, '_').toLowerCase();
         savePageState(name, pageState);
         res.redirect(`/${name}`);
     } else if (reset) {
@@ -65,7 +85,7 @@ app.get('/:page', (req, res) => {
     // Check for save-as
     if (req.query['save-as']) {
         // Format save-as page name to be all lowercase and not have spaces or special characters
-        const name = (req.query['save-as'] as string).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const name = (req.query['save-as'] as string).replace(/[^a-z0-9\[\]\-]/gi, '_').toLowerCase();
         savePageState(name, pageState);
         res.redirect(`/${name}`);
     } else if (reset) {
@@ -141,16 +161,9 @@ const jsonSchema: JsonSchema = {
 const pageGoal =
 `Generate a new web page that represents the next state of the chat based on the users message.
 Update the chat panel with the users message and return a brief response from the AI. Only add the next message pair to the chat panel. 
-Limit the total number of messages displayed in the panel to 50.
 Any details or visualizations should be rendered to the viewer panel.
 The basic layout structure of the page needs to be maintained.
 You're free to write any additional CSS or JavaScript to enhance the page.
-Use the following libraries when generating interactive elements:
-
-- D3 for data visualizations. Use a different color for each dimension but base your colors off the pages color scheme.
-- marked for markdown rendering and code highlighting.
-- mermaid for diagrams.
-
 Write an explication of your reasoning or any hidden thoughts to the thoughts div.`;
 
 async function generateNextPage(pageState: string, message: string): Promise<string> {

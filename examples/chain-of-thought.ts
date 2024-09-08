@@ -1,4 +1,4 @@
-import { openai, chainOfThought } from "agentm";
+import { openai, chainOfThought } from "agentm-core";
 import * as dotenv from "dotenv";
 
 // Load environment variables from .env file

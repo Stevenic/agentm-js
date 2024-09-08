@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Tools</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1e1e1e; color: #fff; height: 100vh; display: flex; }
+        .chat-panel { width: 30%; background: #2b2b2b; padding: 10px; display: flex; flex-direction: column; }
+        .chat-header { font-size: 24px; padding: 10px; background: #3a3a3a; text-align: center; border-bottom: 1px solid #444; }
+        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; margin-top: 10px; background: #2b2b2b; border: 1px solid #444; }
+        .chat-message { margin-bottom: 10px; padding: 8px; background: #4a4a4a; border-radius: 5px; }
+        .link-group { display: flex; justify-content: flex-end; margin-top: 5px; margin-bottom: 5px; }
+        .link-group a { font-size: 12px; color: #aaa; text-decoration: none; margin-left: 10px; }
+        .link-group a:hover { color: #ccc; }
+        form { display: flex; flex-direction: column; width: 100%; }
+        .chat-input, .chat-submit { padding: 10px; border: none; border-radius: 5px; width: 100%; }
+        .chat-input { background: #444; color: white; margin-bottom: 10px; }
+        .chat-submit { background: #5a5a5a; cursor: pointer; }
+        .chat-submit:hover { background: #6a6a6a; }
+        .viewer-panel { width: 70%; padding: 10px; background: #1e1e1e; display: flex; flex-direction: column; align-items: flex-start; border-left: 1px solid #444; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .dialog-title { font-size: 24px; color: #f0f0f0; background: #3a3a3a; padding: 10px; border-bottom: 1px solid #444; width: 100%; text-align: center; }
+        .dialog-content { font-size: 18px; color: #ccc; padding: 10px; margin-top:10px; flex-grow: 1; width: 100%; }
+        .multi-line-input { width: 100%; height: 100px; background: #444; color: white; border: none; border-radius: 5px; padding: 10px; margin-bottom: 10px; }
+        .copy-button, .convert-button, .reset-button { background: #5a5a5a; color: white; border: none; border-radius: 5px; padding: 10px; cursor: pointer; margin-top: 10px; }
+        .copy-button:hover, .convert-button:hover, .reset-button:hover { background: #6a6a6a; }
+        .conversion-type { background: #444; color: white; border: none; border-radius: 5px; padding: 10px; margin-bottom: 10px; width: 100%; }
+        #resultPanel { border: 1px solid #444; padding: 10px; border-radius: 5px; min-height: 400px; white-space: pre-wrap; }
+        .button-group { display: flex; justify-content: space-between; width: 100%; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.1.0/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="chat-panel">
+        <div class="chat-header">Chat</div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message">AgentM: You can use the dropdown to select a conversion type, enter your text, and click "Convert" to see the result.</div>
+        </div>
+        <div class="link-group">
+            <a href="#" id="saveLink">Save</a>
+            <a href="/list" id="listLink">List</a>
+            <a href="#" id="resetLink">Reset</a>
+        </div>
+        <form action="/" method="POST" id="chatForm">
+            <input type="text" class="chat-input" id="chatInput" name="message" placeholder="Type a message...">
+            <button type="submit" class="chat-submit">Send</button>
+        </form>
+    </div>
+    <div class="viewer-panel" id="viewerPanel">
+        <div class="dialog-title">JSON Tools</div>
+        <div class="dialog-content">
+            <select class="conversion-type" id="conversionType">
+                <option value="escape">Escape JSON</option>
+                <option value="unescape">Unescape JSON</option>
+                <option value="format">Format JSON</option>
+                <option value="unformat">Unformat JSON</option>
+                <option value="toYaml">Convert to YAML</option>
+                <option value="fromYaml">Convert from YAML</option>
+            </select>
+            <textarea class="multi-line-input" id="userInput" placeholder="Enter your text here..."></textarea>
+            <div class="button-group">
+                <div>
+                    <button class="convert-button" id="convertButton">Convert</button>
+                    <button class="reset-button" id="resetButton">Reset</button>
+                </div>
+                <button class="copy-button" id="copyButton" disabled>Copy to Clipboard</button>
+            </div>
+            <div id="resultPanel" class="dialog-content"></div>
+        </div>
+    </div>
+    <div id="thoughts" style="display: none;">The user requested to change the title back to "JSON Tools" and clear the chat history. I have updated the title and cleared the chat history, leaving only the latest user message and a response from AgentM explaining the basic usage of the tools. The chat panel now only contains these two messages, ensuring it does not exceed 50 messages.</div>
+    <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
+    <script>
+        // Basic chat functionality
+        document.getElementById("chatInput").focus();
+        document.getElementById("chatForm").addEventListener('submit', () => {
+            document.getElementById("loadingOverlay").style.display = 'flex';
+            document.getElementById("chatForm").action = window.location.pathname;
+        });
+        document.getElementById("saveLink").addEventListener("click", function() {
+            const pageName = prompt("Enter the name of the page to save as:");
+            if (pageName) {
+                window.location.href = `${window.location.pathname}?save-as=${encodeURIComponent(pageName)}`;
+            }
+        });
+        document.getElementById("resetLink").addEventListener("click", function() {
+            window.location.href = `${window.location.pathname}?reset=true`;
+        });
+        window.onload = function() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+
+        // Copy to clipboard functionality
+        document.getElementById("copyButton").addEventListener("click", function() {
+            const resultPanel = document.getElementById("resultPanel");
+            const textToCopy = resultPanel.innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('Text copied to clipboard!');
+            }, (err) => {
+                console.error('Could not copy text: ', err);
+            });
+        });
+
+        // Conversion functionality
+        document.getElementById("convertButton").addEventListener("click", function() {
+            const userInput = document.getElementById("userInput").value;
+            const conversionType = document.getElementById("conversionType").value;
+            let result = "";
+            if (conversionType === "escape") {
+                result = JSON.stringify(userInput);
+            } else if (conversionType === "unescape") {
+                try {
+                    result = JSON.parse(userInput);
+                } catch (e) {
+                    result = "Invalid JSON input";
+                }
+            } else if (conversionType === "format") {
+                try {
+                    const jsonObject = JSON.parse(userInput);
+                    result = JSON.stringify(jsonObject, null, 2);
+                } catch (e) {
+                    result = "Invalid JSON input";
+                }
+            } else if (conversionType === "unformat") {
+                try {
+                    const jsonObject = JSON.parse(userInput);
+                    result = JSON.stringify(jsonObject);
+                } catch (e) {
+                    result = "Invalid JSON input";
+                }
+            } else if (conversionType === "toYaml") {
+                try {
+                    const jsonObject = JSON.parse(userInput);
+                    result = jsyaml.dump(jsonObject, { indent: 2 });
+                } catch (e) {
+                    result = "Invalid JSON input";
+                }
+            } else if (conversionType === "fromYaml") {
+                try {
+                    const yamlObject = jsyaml.load(userInput);
+                    result = JSON.stringify(yamlObject, null, 2);
+                } catch (e) {
+                    result = "Invalid YAML input";
+                }
+            }
+            document.getElementById("resultPanel").innerText = result;
+            document.getElementById("copyButton").disabled = false;
+        });
+
+        // Reset functionality
+        document.getElementById("resetButton").addEventListener("click", function() {
+            document.getElementById("userInput").value = "";
+            document.getElementById("resultPanel").innerText = "";
+            document.getElementById("copyButton").disabled = true;
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+</body>
+</html>

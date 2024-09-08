@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentM Pulse</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1e1e1e; color: #fff; height: 100vh; display: flex; }
+        .chat-panel { width: 30%; background: #2b2b2b; padding: 10px; display: flex; flex-direction: column; }
+        .chat-header { font-size: 24px; padding: 10px; background: #3a3a3a; text-align: center; border-bottom: 1px solid #444; }
+        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; margin-top: 10px; background: #2b2b2b; border: 1px solid #444; }
+        .chat-message { margin-bottom: 10px; padding: 8px; background: #4a4a4a; border-radius: 5px; }
+        .link-group { display: flex; justify-content: flex-end; margin-top: 5px; margin-bottom: 5px; }
+        .link-group a { font-size: 12px; color: #aaa; text-decoration: none; margin-left: 10px; }
+        .link-group a:hover { color: #ccc; }
+        form { display: flex; flex-direction: column; width: 100%; }
+        .chat-input, .chat-submit { padding: 10px; border: none; border-radius: 5px; width: 100%; }
+        .chat-input { background: #444; color: white; margin-bottom: 10px; }
+        .chat-submit { background: #5a5a5a; cursor: pointer; }
+        .chat-submit:hover { background: #6a6a6a; }
+        .viewer-panel { width: 70%; padding: 20px; background: #1e1e1e; display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 1px solid #444; text-align: center; position: relative; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .welcome-message { font-size: 36px; font-weight: bold; color: #f0f0f0; margin-bottom: 20px; }
+        .instructions { font-size: 18px; color: #ccc; max-width: 600px; line-height: 1.6; }
+        .info-box { position: absolute; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); padding: 15px; border-radius: 8px; color: #fff; font-size: 14px; }
+        svg { width: 800px; height: 800px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.1.0/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="chat-panel">
+        <div class="chat-header">Chat</div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message">AgentM: what can I create for you?</div>
+            <div class="chat-message">User: we're going to create an animation of the planets orbiting the sun. lets start by making a list of the planets with their masses distance from the sun and orbital rotation periods. include the mass of the sun and put everything in a box in the lower right corner of the viewer</div>
+            <div class="chat-message">AgentM: Sure! I'll start by listing the planets with their masses, distances from the sun, and orbital periods. I'll also include the mass of the sun. Check the viewer panel for details.</div>
+            <div class="chat-message">User: lets create the animation. start by creating a circle to represent the sun and then place proportionally sized circles for the other planets at their correct distances. scale everything to fit in an 800px by 800px view. keep the info box you created but float it above the screen if needed</div>
+            <div class="chat-message">AgentM: Great! I'll create a visual representation of the solar system with the sun and planets. Check the viewer panel for the animation.</div>
+            <div class="chat-message">User: the sizes look correct but jupiter looks too close. double check your distances and you can go a little outside of the 800px by 800px box if you need to. you can also just make things a little smaller</div>
+            <div class="chat-message">AgentM: I'll adjust the distances to ensure Jupiter is correctly placed. I'll also make the necessary size adjustments. Please check the updated visualization.</div>
+            <div class="chat-message">User: lets start by just animating the earths rotation. lets scale it to rotate once every 30 seconds</div>
+            <div class="chat-message">AgentM: I'll animate Earth's rotation around the sun, completing one orbit every 30 seconds. Check the viewer panel for the animation.</div>
+            <div class="chat-message">User: ok lets add animations for mercury, venus, and mars</div>
+            <div class="chat-message">AgentM: I'll animate the orbits of Mercury, Venus, and Mars around the sun. Check the viewer panel for the updated animation.</div>
+            <div class="chat-message">User: ok now add in the other planets</div>
+            <div class="chat-message">AgentM: I'll add animations for the orbits of Jupiter, Saturn, Uranus, and Neptune. Check the viewer panel for the complete solar system animation.</div>
+            <div class="chat-message">User: scale everything down by 30% so that all the planets fit in the view</div>
+            <div class="chat-message">AgentM: I'll scale down the entire solar system by 30% to ensure all planets fit within the view. Please check the updated visualization.</div>
+        </div>
+        <div class="link-group">
+            <a href="#" id="saveLink">Save</a>
+            <a href="/list" id="listLink">List</a>
+            <a href="#" id="resetLink">Reset</a>
+        </div>
+        <form action="/" method="POST" id="chatForm">
+            <input type="text" class="chat-input" id="chatInput" name="message" placeholder="Type a message...">
+            <button type="submit" class="chat-submit">Send</button>
+        </form>
+    </div>
+    <div class="viewer-panel" id="viewerPanel">
+        <svg id="solarSystem"></svg>
+        <div class="info-box">
+            <strong>Sun:</strong> Mass = 1.989 × 10<sup>30</sup> kg<br>
+            <strong>Mercury:</strong> Mass = 3.285 × 10<sup>23</sup> kg, Distance = 57.9 million km, Orbital Period = 88 days<br>
+            <strong>Venus:</strong> Mass = 4.867 × 10<sup>24</sup> kg, Distance = 108.2 million km, Orbital Period = 225 days<br>
+            <strong>Earth:</strong> Mass = 5.972 × 10<sup>24</sup> kg, Distance = 149.6 million km, Orbital Period = 365 days<br>
+            <strong>Mars:</strong> Mass = 6.39 × 10<sup>23</sup> kg, Distance = 227.9 million km, Orbital Period = 687 days<br>
+            <strong>Jupiter:</strong> Mass = 1.898 × 10<sup>27</sup> kg, Distance = 778.5 million km, Orbital Period = 12 years<br>
+            <strong>Saturn:</strong> Mass = 5.683 × 10<sup>26</sup> kg, Distance = 1.434 billion km, Orbital Period = 29 years<br>
+            <strong>Uranus:</strong> Mass = 8.681 × 10<sup>25</sup> kg, Distance = 2.871 billion km, Orbital Period = 84 years<br>
+            <strong>Neptune:</strong> Mass = 1.024 × 10<sup>26</sup> kg, Distance = 4.495 billion km, Orbital Period = 165 years
+        </div>
+    </div>
+    <div id="thoughts" style="display: none;">To ensure all planets fit within the view, I will scale down the entire solar system visualization by 30%. This involves reducing the distances and sizes of the planets and the sun proportionally. The animations will remain the same, but the visual representation will be smaller, allowing everything to fit comfortably within the 800px by 800px SVG area.</div>
+    <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
+    <script>
+        // Basic chat functionality
+        document.getElementById("chatInput").focus();
+        document.getElementById("chatForm").addEventListener('submit', () => {
+            document.getElementById("loadingOverlay").style.display = 'flex';
+            document.getElementById("chatForm").action = window.location.pathname;
+        });
+        document.getElementById("saveLink").addEventListener("click", function() {
+            const pageName = prompt("Enter the name of the page to save as:");
+            if (pageName) {
+                window.location.href = `${window.location.pathname}?save-as=${encodeURIComponent(pageName)}`;
+            }
+        });
+        document.getElementById("resetLink").addEventListener("click", function() {
+            window.location.href = `${window.location.pathname}?reset=true`;
+        });
+        window.onload = function() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+
+        // Solar system visualization
+        const svg = d3.select("#solarSystem");
+        const width = 800;
+        const height = 800;
+        const centerX = width / 2;
+        const centerY = height / 2;
+
+        // Updated data for the solar system with adjusted distances and sizes
+        const solarSystemData = [
+            { name: "Sun", radius: 50 * 0.7, distance: 0, color: "#FFD700" },
+            { name: "Mercury", radius: 5 * 0.7, distance: 60 * 0.7, color: "#B0B0B0", orbitalPeriod: 88 },
+            { name: "Venus", radius: 12 * 0.7, distance: 100 * 0.7, color: "#EEDC82", orbitalPeriod: 225 },
+            { name: "Earth", radius: 13 * 0.7, distance: 140 * 0.7, color: "#1E90FF", orbitalPeriod: 365 },
+            { name: "Mars", radius: 7 * 0.7, distance: 180 * 0.7, color: "#FF4500", orbitalPeriod: 687 },
+            { name: "Jupiter", radius: 30 * 0.7, distance: 300 * 0.7, color: "#FFD700", orbitalPeriod: 4333 },
+            { name: "Saturn", radius: 25 * 0.7, distance: 360 * 0.7, color: "#DAA520", orbitalPeriod: 10759 },
+            { name: "Uranus", radius: 20 * 0.7, distance: 420 * 0.7, color: "#AFEEEE", orbitalPeriod: 30687 },
+            { name: "Neptune", radius: 20 * 0.7, distance: 480 * 0.7, color: "#4682B4", orbitalPeriod: 60190 }
+        ];
+
+        // Clear previous circles
+        svg.selectAll("circle").remove();
+
+        // Create circles for each celestial body
+        const planets = svg.selectAll("circle")
+            .data(solarSystemData)
+            .enter()
+            .append("circle")
+            .attr("cx", d => centerX + d.distance)
+            .attr("cy", centerY)
+            .attr("r", d => d.radius)
+            .attr("fill", d => d.color);
+
+        // Function to animate a planet's orbit
+        function animateOrbit(planet, duration) {
+            planet.transition()
+                .duration(duration)
+                .ease(d3.easeLinear)
+                .attrTween("transform", function() {
+                    return d3.interpolateString("rotate(0, " + centerX + ", " + centerY + ")", "rotate(360, " + centerX + ", " + centerY + ")");
+                })
+                .on("end", function() { animateOrbit(planet, duration); }); // Loop the animation
+        }
+
+        // Animate Earth's rotation
+        const earth = planets.filter(d => d.name === "Earth");
+        animateOrbit(earth, 30000); // 30 seconds for Earth
+
+        // Animate Mercury, Venus, Mars, Jupiter, Saturn, Uranus, and Neptune
+        const mercury = planets.filter(d => d.name === "Mercury");
+        const venus = planets.filter(d => d.name === "Venus");
+        const mars = planets.filter(d => d.name === "Mars");
+        const jupiter = planets.filter(d => d.name === "Jupiter");
+        const saturn = planets.filter(d => d.name === "Saturn");
+        const uranus = planets.filter(d => d.name === "Uranus");
+        const neptune = planets.filter(d => d.name === "Neptune");
+
+        animateOrbit(mercury, 30000 * (88 / 365)); // Scaled to Earth's 30 seconds
+        animateOrbit(venus, 30000 * (225 / 365)); // Scaled to Earth's 30 seconds
+        animateOrbit(mars, 30000 * (687 / 365)); // Scaled to Earth's 30 seconds
+        animateOrbit(jupiter, 30000 * (4333 / 365)); // Scaled to Earth's 30 seconds
+        animateOrbit(saturn, 30000 * (10759 / 365)); // Scaled to Earth's 30 seconds
+        animateOrbit(uranus, 30000 * (30687 / 365)); // Scaled to Earth's 30 seconds
+        animateOrbit(neptune, 30000 * (60190 / 365)); // Scaled to Earth's 30 seconds
+    </script>
+</body>
+</html>

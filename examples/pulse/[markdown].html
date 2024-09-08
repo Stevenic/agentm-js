@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentM Pulse</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #1e1e1e; color: #fff; height: 100vh; display: flex; }
+        .chat-panel { width: 30%; background: #2b2b2b; padding: 10px; display: flex; flex-direction: column; }
+        .chat-header { font-size: 24px; padding: 10px; background: #3a3a3a; text-align: center; border-bottom: 1px solid #444; }
+        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; margin-top: 10px; background: #2b2b2b; border: 1px solid #444; }
+        .chat-message { margin-bottom: 10px; padding: 8px; background: #4a4a4a; border-radius: 5px; }
+        .link-group { display: flex; justify-content: flex-end; margin-top: 5px; margin-bottom: 5px; }
+        .link-group a { font-size: 12px; color: #aaa; text-decoration: none; margin-left: 10px; }
+        .link-group a:hover { color: #ccc; }
+        form { display: flex; flex-direction: column; width: 100%; }
+        .chat-input, .chat-submit { padding: 10px; border: none; border-radius: 5px; width: 100%; }
+        .chat-input { background: #444; color: white; margin-bottom: 10px; }
+        .chat-submit { background: #5a5a5a; cursor: pointer; }
+        .chat-submit:hover { background: #6a6a6a; }
+        .viewer-panel { width: 70%; padding: 20px; background: #1e1e1e; display: flex; flex-direction: column; border-left: 1px solid #444; text-align: left; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .markdown-content { text-align: left; color: #f0f0f0; width: 100%; }
+        /* Additional styling for markdown elements */
+        h1 { font-size: 2em; margin-bottom: 0.2em; font-weight: normal; }
+        h2 { font-size: 1.5em; margin-bottom: 0.2em; font-weight: normal; }
+        h3 { font-size: 1.2em; margin-bottom: 0.5em; font-weight: normal; }
+        h4 { font-size: 1em; margin-bottom: 0.2em; font-weight: normal; }
+        h5 { font-size: 0.9em; margin-bottom: 0.2em; font-weight: normal; }
+        p { margin-bottom: 1em; }
+        ul { margin-left: 20px; margin-bottom: 1em; }
+        ol { margin-left: 20px; margin-bottom: 1em; }
+        li { margin-bottom: 0.5em; }
+        blockquote { margin: 1em 0; padding: 0.5em 10px; border-left: 5px solid #ccc; background: #333; }
+        code { background: #333; padding: 2px 4px; }
+        pre { background: #333; padding: 10px; border-radius: 4px; overflow-x: auto; position: relative; }
+        .code-block { border-radius: 4px; overflow: hidden; margin-bottom: 1em; }
+        .code-block pre { border-radius: 0px; }
+        a { color: #3498db; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .markdown-content > * + * { margin-top: 1.5em; }
+        .markdown-content h1 + *,
+        .markdown-content h2 + *,
+        .markdown-content h3 + *,
+        .markdown-content h4 + *,
+        .markdown-content h5 + * { margin-top: 0.5em; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+        th, td { padding: 10px; border: 1px solid #444; text-align: left; }
+        th { background: #3a3a3a; }
+        td { background: #2b2b2b; }
+        .code-header { background: #444; padding: 5px; border-radius: 5px 5px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .code-header span { font-size: 0.9em; color: #ccc; }
+        .copy-button { background: #5a5a5a; border: none; color: #fff; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        .copy-button:hover { background: #6a6a6a; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.1.0/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="chat-panel">
+        <div class="chat-header">Chat</div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message">AgentM: {Agent Message}</div>
+        </div>
+        <div class="link-group">
+            <a href="#" id="saveLink">Save</a>
+            <a href="/list" id="listLink">List</a>
+            <a href="#" id="resetLink">Reset</a>
+        </div>
+        <form action="/" method="POST" id="chatForm">
+            <input type="text" class="chat-input" id="chatInput" name="message" placeholder="Type a message...">
+            <button type="submit" class="chat-submit">Send</button>
+        </form>
+    </div>
+    <div class="viewer-panel" id="viewerPanel">
+        <div class="markdown-content" id="markdownContent">
+            <!-- The markdown content will be rendered here -->
+        </div>
+    </div>
+    <div id="thoughts" style="display: none;">The user requested additional styling for h3 to h5 headers and adjustments to the spacing between sections and headings. I updated the CSS to include styles for h3, h4, and h5, and modified the spacing rules to improve readability. The chat panel now includes the user's request and my response, maintaining the limit of 50 messages.</div>
+    <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
+    <script>
+        // Basic chat functionality
+        document.getElementById("chatInput").focus();
+        document.getElementById("chatForm").addEventListener('submit', () => {
+            document.getElementById("loadingOverlay").style.display = 'flex';
+            document.getElementById("chatForm").action = window.location.pathname;
+        });
+        document.getElementById("saveLink").addEventListener("click", function() {
+            const pageName = prompt("Enter the name of the page to save as:");
+            if (pageName) {
+                window.location.href = `${window.location.pathname}?save-as=${encodeURIComponent(pageName)}`;
+            }
+        });
+        document.getElementById("resetLink").addEventListener("click", function() {
+            window.location.href = `${window.location.pathname}?reset=true`;
+        });
+        window.onload = function() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+
+            // Render markdown using marked library with custom renderer
+            const renderer = new marked.Renderer();
+            renderer.code = function(tokens) {
+                const text = tokens.text;
+                const lang = tokens.lang;
+                const langString = (lang || '').match(/^\S*/)?.[0];
+                const code = text.replace(/\n$/, '') + '\n';
+
+                if (!langString) {
+                    return `<pre><code>${code}</code></pre>\n`;
+                }
+
+                return `<div class="code-block"><div class="code-header"><span>${langString}</span><button class="copy-button" onclick="copyToClipboard(this)">Copy</button></div><pre><code>${code}</code></pre></div>\n`;
+            };
+
+            document.getElementById('markdownContent').innerHTML = marked.parse(markdownContent, { renderer: renderer });
+        };
+            
+        function copyToClipboard(button) {
+            const codeBlock = button.parentElement.nextElementSibling.querySelector('code');
+            navigator.clipboard.writeText(codeBlock.textContent).then(() => {
+                button.textContent = 'Copied!';
+                setTimeout(() => { button.textContent = 'Copy'; }, 2000);
+            });
+        }
+
+        // Markdown content to render
+        const markdownContent = `# {Title}\n\n{Overview}\n\n## {Topic}\n\n{Topic Content}`;
+    </script>
+</body>
+</html>
