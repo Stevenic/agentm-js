@@ -49,7 +49,6 @@ export function useDataRoutes(config: PulseConfig, app: Application): void {
         const file = recordFile(folder, id);
         try {
             const row = { ...req.body, id };
-            console.log(row);
             await ensureFolderExists(folder);
             await saveFile(file, JSON.stringify(row, null, 4));
             res.json({ success: true });

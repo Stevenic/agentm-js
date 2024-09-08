@@ -7,7 +7,7 @@ import { availableModels } from "./createCompletePrompt";
 export function useApiRoutes(config: PulseConfig, app: Application): void {
     // List pages
     app.get('/api/pages', async (req, res) => {
-        const pages = await listPages(config.pagesFolder, config.fallbackPagesFolder);
+        const pages = await listPages(config.pagesFolder, config.requiredPagesFolder);
         res.json(pages);
     });
 

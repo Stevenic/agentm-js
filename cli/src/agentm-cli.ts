@@ -16,15 +16,15 @@ export async function run() {
                     type: 'number',
                     default: 4242
                 })
-                .option('no-examples', {
-                    describe: `Don't copy example pages when initializing a new .agentm folder.`,
+                .option('examples', {
+                    describe: `Include example pages when initializing a new .agentm folder.`,
                     type: 'boolean',
-                    default: false
+                    default: true
                 })
                 .demandOption([]);
         }, async (args) => {
             const config = createConfig();
-            await init(config, args.noExamples);
+            await init(config, args.examples);
             await server(config).listen(args.port, () => {
                 console.log(`AgentM's Pulse server is running on http://localhost:${args.port}`);
             });

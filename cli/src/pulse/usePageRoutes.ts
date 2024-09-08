@@ -133,5 +133,5 @@ export async function loadPageWithFallback(page: string, config: PulseConfig, re
     }
 
     // Try fallback pages folder second
-    return loadPageState(config.fallbackPagesFolder, page, reset);
+    return loadPageState(config.requiredPagesFolder, page, reset);
 }

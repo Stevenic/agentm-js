@@ -25,8 +25,7 @@
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .welcome-message { font-size: 36px; font-weight: bold; color: #f0f0f0; margin-bottom: 20px; }
-        .instructions { font-size: 18px; color: #ccc; max-width: 600px; line-height: 1.6; }
+        .watermark { font-size: 36px; font-weight: bold; color: rgba(240, 240, 240, 0.1); margin-bottom: 20px; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
@@ -49,8 +48,7 @@
         </form>
     </div>
     <div class="viewer-panel" id="viewerPanel">
-        <div class="welcome-message">AgentM Pulse</div>
-        <div class="instructions">To get started, type your message and click "Send". Conversations will appear in the chat panel and visualization will appear in this viewer. Click "List" to view saved pages and templates.</div>
+        <div class="watermark">AgentM Pulse</div>
     </div>
     <div id="thoughts" style="display: none;">I need to generate a UI with chat & viewer panels and then greet the user.</div>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
