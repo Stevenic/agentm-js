@@ -1,10 +1,11 @@
 # AgentM
 AgentM is a library of "Micro Agents" that make it easy to add reliable intelligence to any application. The philosophy behind AgentM is that "Agents" should be mostly comprised of deterministic code with a sprinkle of LLM powered intelligence mixed in. Many of the existing Agent frameworks place the LLM at the center of the application as an orchestrator that calls a collection of tools. In an AgentM application, your code is the orchestrator and you only call a micro agent when you need to perform a task that requires intelligence. To make adding this intelligence to your code easy, the JavaScript version of AgentM surfaces these micro agents as a simple library of functions.
 
+## Pulse
 In addition to the AgentM library of "Micro Agents", AgentM include a very unique webserver called **Pulse**.  What makes Pulse unique is that it's organized as collection of web pages that are self modifying and 100% AI generated. You can think of it like a wiki where every page is writen by an LLM under your direction. Not only can these pages contain traditional wiki like content but the LLM is free to write code so they can contain generated animations or even complete mini applications.  To learn more about installing and using Pulse visit it's [dedicated readme](https://github.com/Stevenic/agentm-js/tree/main/cli#readme).
 
 
-## Available Micro Agents
+## Included Micro Agents
 The initial release of AgentM includes support for calling OpenAI's GPT-4o family of models and makes heavy use of OpenAI's new [Structured Outputs](https://openai.com/index/introducing-structured-outputs-in-the-api/) feature which dramatically improves the reliability of working with LLM's. The library includes the following micro agents:
 
 - **argumentParser** - Parses a set of arguments expressed using natural language into a strongly typed object. This can be used to create CLI tools that you can give commands to using natural language. No need for flags or switches anymore. 
