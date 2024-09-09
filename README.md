@@ -27,7 +27,7 @@ https://platform.openai.com/api-keys
 Ensure that you have recent versions of [Node.js](https://nodejs.org/en) and [yarn](https://yarnpkg.com/) installed. To add AgentM to an existing project you can run:
 
 ```bash
-$ yarn add agentm
+$ yarn add agentm-core
 ```
 
 
@@ -43,7 +43,7 @@ apiKey=<Your_OpenAI_API_Key>
 With your OpenAI key setup we can start by importing the AgentM library and load our .env file:
 
 ```TS
-import { openai, filterList, sortList, mapList } from "agentm";
+import { openai, filterList, sortList, mapList } from "agentm-core";
 import * as dotenv from "dotenv";
 
 // Load environment variables from .env file
