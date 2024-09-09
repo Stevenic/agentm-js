@@ -7,6 +7,7 @@ export interface Settings {
     openaiApiKey: string;
     model: string;
     maxTokens: number;
+    imageQuality: 'standard' | 'hd';
     instructions?: string;
     logCompletions?: boolean;
 }
@@ -15,6 +16,7 @@ export const DefaultSettings: Settings = {
     openaiApiKey: '',
     model: 'gpt-4o-2024-08-06',
     maxTokens: 12000,
+    imageQuality: 'standard',
     instructions: '',
     logCompletions: false
 };

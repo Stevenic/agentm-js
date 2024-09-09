@@ -4,6 +4,7 @@ import { Application } from 'express';
 import { transformPage } from "./transformPage";
 import { PulseConfig } from "./init";
 import { createCompletePrompt } from "./createCompletePrompt";
+import { completePrompt } from "agentm-core";
 
 const HOME_PAGE_ROUTE = '/home';
 const PAGE_NOT_FOUND = 'Page not found';
@@ -107,7 +108,13 @@ export function usePageRoutes(config: PulseConfig, app: Application): void {
             }
 
             // Create model instance
-            const completePrompt = await createCompletePrompt(config.pagesFolder, model);
+            const innerCompletePrompt = await createCompletePrompt(config.pagesFolder, model);
+            const completePrompt: completePrompt = (args) => {
+                console.log(`SYSTEM:\n${args.system!.content}`);
+                console.log(`PROMPT:\n${args.prompt!.content}`);
+                return innerCompletePrompt(args);
+            }
+
 
             // Transform and cache updated page 
             const { maxTokens, instructions } = await loadSettings(config.pagesFolder);

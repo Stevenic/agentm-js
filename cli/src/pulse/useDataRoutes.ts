@@ -38,7 +38,7 @@ export function useDataRoutes(config: PulseConfig, app: Application): void {
             row.id = id;
             res.json(row);
         } catch (err: unknown) {
-            res.status(404).send('Not found');
+            res.json(undefined);
         }
     });
 

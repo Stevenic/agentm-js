@@ -69,6 +69,11 @@ DELETE /api/data/:table/:id
 description: Delete a single row from a table
 response: { success: true }
 
+POST /api/generate-image
+description: Generate an image based on a prompt
+request: { prompt: string, shape: 'square' | 'portrait' | 'landscape', style: 'vivid' | 'natural' }
+response: { url: string }
+
 GET /api/pages
 description: Retrieve a list of all pages
 response: Array of page names [string]`;
