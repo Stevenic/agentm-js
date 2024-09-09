@@ -2,7 +2,7 @@
     "name": "agentm",
     "author": "Steven Ickman",
     "description": "Command Line Interface for the AgentM Micro Agent Library",
-    "version": "0.7.2",
+    "version": "0.7.3",
     "license": "MIT",
     "keywords": [
         "gpt"
@@ -18,8 +18,9 @@
     "types": "./dist/index.d.ts",
     "bin": "./bin/agentm.js",
     "dependencies": {
-        "agentm-core": "0.5.0",
+        "agentm-core": "0.7.0",
         "express": "^4.19.2",
+        "openai": "^4.57.0",
         "yargs": "^17.7.2"
     },
     "devDependencies": {

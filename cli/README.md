@@ -43,7 +43,7 @@ A Pulse server instance is just a collection of named pages. You can think of it
 ![Pulse Page Management](./images/page-management.png)
 
 - **Save** - Will save the current page to either a new page or over the top of the current page. Any page can be replaced, even the home page.
-- **List** - Navigates you to the `list` page where you can see a listing of all the current pages. You can navigate to a different page from either the `list` page or by setting the `/{page_name}` directly in your browsers address bar.
+- **Pages** - Navigates you to the `pages` page where you can see a listing of all the current pages. You can navigate to a different page from either the `pages` page or by setting the `/{page_name}` directly in your browsers address bar.
 - **Reset** - Restores the current page back to its last save point. The modifications to a page are cached in the servers memory until their either saved using **Save** or the server is restarted.  Clicking **Reset** lets you manually roll back changes and, trust me, you will be clicking this a lot.
 
 One thing you'll notice is that there's no **Delete** action. This is actually by design. The LLM has direct access to all of these page management features and I didn't want it randomly deciding to write a program that would delete all of its pages.
