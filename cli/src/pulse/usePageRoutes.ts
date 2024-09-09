@@ -93,7 +93,7 @@ export function usePageRoutes(config: PulseConfig, app: Application): void {
             }
 
             // Ensure page exists
-            const pageState = await loadPageWithFallback(page, config, true);
+            const pageState = await loadPageWithFallback(page, config, false);
             if (!pageState) {
                 res.status(404).send(PAGE_NOT_FOUND);
                 return;

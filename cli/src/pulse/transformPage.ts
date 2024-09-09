@@ -44,7 +44,8 @@ const jsonSchema: JsonSchema = {
 
 const goal =
 `Generate a new web page that represents the next state of the chat based on the users message.
-Update the chat panel with the users message and return a brief response from the AI. Only add the next message pair to the chat panel. 
+Append the the users message and a brief response from the AI to the chat panel.
+Maintain the full conversation history in the chat panel unless asked to clear it.
 Any details or visualizations should be rendered to the viewer panel.
 The basic layout structure of the page needs to be maintained.
 You're free to write any additional CSS or JavaScript to enhance the page.

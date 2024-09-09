@@ -13,7 +13,7 @@ export interface Settings {
 
 export const DefaultSettings: Settings = {
     openaiApiKey: '',
-    model: 'gpt-4o-mini',
+    model: 'gpt-4o-2024-08-06',
     maxTokens: 12000,
     instructions: '',
     logCompletions: false
