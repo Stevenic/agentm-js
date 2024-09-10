@@ -84,7 +84,9 @@ Maintain the full conversation history in the chat panel unless asked to clear i
 Any details or visualizations should be rendered to the viewer panel.
 The basic layout structure of the page needs to be maintained.
 You're free to write any additional CSS or JavaScript to enhance the page.
-Write an explication of your reasoning or any hidden thoughts to the thoughts div.`;
+Write an explication of your reasoning or any hidden thoughts to the thoughts div.
+If the user asks to create something like an app, tool, game, or ui create it in the viewer panel.
+If the user asks to draw something use canvas to draw it in the viewer panel.`;
 
 const serverAPIs =
 `GET /api/data/:table

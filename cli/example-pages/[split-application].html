@@ -7,7 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #e0e0e0; height: 100vh; display: flex; }
-        .chat-panel { width: 70%; background: #2a2a2a; box-shadow: 0 0 10px rgba(0,0,0,0.3); padding: 20px; display: flex; flex-direction: column; }
+        .chat-panel { width: 30%; background: #2a2a2a; box-shadow: 0 0 10px rgba(0,0,0,0.3); padding: 20px; display: flex; flex-direction: column; }
         .chat-header { font-size: 24px; padding: 10px; background: #3a7bc8; color: white; text-align: center; border-radius: 10px 10px 0 0; }
         .chat-messages { flex-grow: 1; overflow-y: auto; padding: 15px; margin-top: 10px; background: #333; border-radius: 10px; }
         .chat-message { margin-bottom: 15px; padding: 10px; background: #444; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
@@ -22,7 +22,7 @@
         .chat-input { background: #444; color: #e0e0e0; margin-bottom: 10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); }
         .chat-submit { background: #3a7bc8; color: white; cursor: pointer; transition: background-color 0.3s; }
         .chat-submit:hover { background: #2a6cb8; }
-        .sidebar-panel { width: 30%; background: #2a2a2a; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; box-shadow: -5px 0 10px rgba(0,0,0,0.2); }
+        .viewer-panel { width: 70%; background: #2a2a2a; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; box-shadow: -5px 0 10px rgba(0,0,0,0.2); }
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 26, 26, 0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .spinner { border: 8px solid #333; border-top: 8px solid #3a7bc8; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -30,8 +30,13 @@
         ::-webkit-scrollbar-track { background: #333; }
         ::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: #666; }
-        .sidebar-title { font-size: 24px; color: #f0f0f0; background: #3a3a3a; padding: 10px; border-bottom: 1px solid #444; width: 100%; text-align: center; }
-        .sidebar-content { font-size: 18px; color: #ccc; padding: 10px; margin-top:10px; flex-grow: 1; width: 100%; overflow-y: auto; }
+        .application-panel { display: flex; flex-direction: column; height: 100%; width: 100%; padding: 20px; }
+        .application-header { font-size: 24px; padding: 10px; background: #3a7bc8; color: white; text-align: center; border-radius: 10px 10px 0 0; }
+        .application-content { flex-grow: 1; display: flex; flex-direction: column; margin-top: 10px; }
+        .application-top, .application-bottom { background: #333; border-radius: 10px; padding: 15px; overflow-y: auto; }
+        .application-top { flex-grow: 1; margin-bottom: 10px; }
+        .application-bottom { flex-grow: 1; }
+        .splitter { height: 10px; background: #2a2a2a; cursor: row-resize; border-radius: 5px; margin: 5px 0; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
@@ -41,7 +46,7 @@
     <div class="chat-panel">
         <div class="chat-header">AgentM Chat</div>
         <div class="chat-messages" id="chatMessages">
-            <div class="chat-message"><p><strong>AgentM:</strong> what would you like in the sidebar?</p></div>
+            <div class="chat-message"><p><strong>AgentM:</strong> what kind of application would you like?</p></div>
         </div>
         <div class="link-group">
             <a href="#" id="saveLink">Save</a>
@@ -53,13 +58,21 @@
             <button type="submit" class="chat-submit">Send</button>
         </form>
     </div>
-    <div class="sidebar-panel" id="sidebarPanel">
-        <div class="sidebar-title">Sidebar</div>
-        <div class="sidebar-content">
-            <p>This is the sidebar content. You can customize this area with various widgets, information, or controls as needed.</p>
+    <div class="viewer-panel" id="viewerPanel">
+        <div class="application-panel">
+            <div class="application-header">{Application Title}</div>
+            <div class="application-content">
+                <div class="application-top">
+                    <p>{Top Panel Content}</p>
+                </div>
+                <div class="splitter" id="splitter"></div>
+                <div class="application-bottom">
+                    <p>{Bottom Panel Content}</p>
+                </div>
+            </div>
         </div>
     </div>
-    <div id="thoughts" style="display: none;">I've prompted the user for what they would like to add to teh sidebar.</div>
+    <div id="thoughts" style="display: none;">I've prompted the user for the type of application to create.</div>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
     <script>
         // Basic chat functionality
@@ -84,6 +97,37 @@
                 behavior: 'smooth'
             });
         };
+
+        // Splitter functionality
+        const splitter = document.getElementById('splitter');
+        const topPanel = document.querySelector('.application-top');
+        const bottomPanel = document.querySelector('.application-bottom');
+
+        let isDragging = false;
+
+        splitter.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            document.body.style.cursor = 'row-resize';
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            const containerRect = document.querySelector('.application-content').getBoundingClientRect();
+            const containerHeight = containerRect.height;
+            const offsetY = e.clientY - containerRect.top;
+            const newTopHeight = (offsetY / containerHeight) * 100;
+            const newBottomHeight = 100 - newTopHeight;
+
+            if (newTopHeight > 10 && newBottomHeight > 10) {
+                topPanel.style.flexBasis = `${newTopHeight}%`;
+                bottomPanel.style.flexBasis = `${newBottomHeight}%`;
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            isDragging = false;
+            document.body.style.cursor = 'default';
+        });
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON Tools</title>
+    <title>AgentM</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #e0e0e0; height: 100vh; display: flex; }
@@ -32,23 +32,16 @@
         ::-webkit-scrollbar-thumb:hover { background: #666; }
         .application-title { font-size: 24px; color: white; background: #3a7bc8; padding: 10px; width: 100%; text-align: center; border-radius: 10px 10px 0 0; }
         .application-content { font-size: 18px; color: #ccc; padding: 20px; margin-top: 10px; flex-grow: 1; width: 100%; background: #333; border-radius: 0 0 10px 10px; }
-        .multi-line-input { width: 100%; height: 100px; background: #444; color: white; border: none; border-radius: 5px; padding: 10px; margin-bottom: 10px; }
-        .copy-button, .convert-button, .reset-button { background: #3a7bc8; color: white; border: none; border-radius: 5px; padding: 10px; cursor: pointer; margin-top: 10px; transition: background-color 0.3s; }
-        .copy-button:hover, .convert-button:hover, .reset-button:hover { background: #2a6cb8; }
-        .conversion-type { background: #444; color: white; border: none; border-radius: 5px; padding: 10px; margin-bottom: 10px; width: 100%; }
-        #resultPanel { border: 1px solid #444; padding: 10px; border-radius: 5px; min-height: 400px; white-space: pre-wrap; background: #444; color: #e0e0e0; }
-        .button-group { display: flex; justify-content: space-between; width: 100%; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.1.0/mermaid.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 </head>
 <body>
     <div class="chat-panel">
         <div class="chat-header">AgentM Chat</div>
         <div class="chat-messages" id="chatMessages">
-            <div class="chat-message"><p><strong>AgentM:</strong> You can use the dropdown to select a conversion type, enter your text, and click "Convert" to see the result.</p></div>
+            <div class="chat-message"><p><strong>AgentM:</strong> what kind of application would you like?</p></div>
         </div>
         <div class="link-group">
             <a href="#" id="saveLink">Save</a>
@@ -61,28 +54,10 @@
         </form>
     </div>
     <div class="viewer-panel" id="viewerPanel">
-        <div class="application-title">JSON Tools</div>
-        <div class="application-content">
-            <select class="conversion-type" id="conversionType">
-                <option value="escape">Escape JSON</option>
-                <option value="unescape">Unescape JSON</option>
-                <option value="format">Format JSON</option>
-                <option value="unformat">Unformat JSON</option>
-                <option value="toYaml">Convert to YAML</option>
-                <option value="fromYaml">Convert from YAML</option>
-            </select>
-            <textarea class="multi-line-input" id="userInput" placeholder="Enter your text here..."></textarea>
-            <div class="button-group">
-                <div>
-                    <button class="convert-button" id="convertButton">Convert</button>
-                    <button class="reset-button" id="resetButton">Reset</button>
-                </div>
-                <button class="copy-button" id="copyButton" disabled>Copy to Clipboard</button>
-            </div>
-            <div id="resultPanel" class="application-content"></div>
-        </div>
+        <div class="application-title">{Application Title}</div>
+        <div class="application-content">{Application Content}</div>
     </div>
-    <div id="thoughts" style="display: none;">I've instructed the user for how to use the tool.</div>
+    <div id="thoughts" style="display: none;">I've prompted the user for the type of application to create.</div>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
     <script>
         // Basic chat functionality
@@ -106,71 +81,7 @@
                 top: chatMessages.scrollHeight,
                 behavior: 'smooth'
             });
-s        };
-
-        // Copy to clipboard functionality
-        document.getElementById("copyButton").addEventListener("click", function() {
-            const resultPanel = document.getElementById("resultPanel");
-            const textToCopy = resultPanel.innerText;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                alert('Text copied to clipboard!');
-            }, (err) => {
-                console.error('Could not copy text: ', err);
-            });
-        });
-
-        // Conversion functionality
-        document.getElementById("convertButton").addEventListener("click", function() {
-            const userInput = document.getElementById("userInput").value;
-            const conversionType = document.getElementById("conversionType").value;
-            let result = "";
-            if (conversionType === "escape") {
-                result = JSON.stringify(userInput);
-            } else if (conversionType === "unescape") {
-                try {
-                    result = JSON.parse(userInput);
-                } catch (e) {
-                    result = "Invalid JSON input";
-                }
-            } else if (conversionType === "format") {
-                try {
-                    const jsonObject = JSON.parse(userInput);
-                    result = JSON.stringify(jsonObject, null, 2);
-                } catch (e) {
-                    result = "Invalid JSON input";
-                }
-            } else if (conversionType === "unformat") {
-                try {
-                    const jsonObject = JSON.parse(userInput);
-                    result = JSON.stringify(jsonObject);
-                } catch (e) {
-                    result = "Invalid JSON input";
-                }
-            } else if (conversionType === "toYaml") {
-                try {
-                    const jsonObject = JSON.parse(userInput);
-                    result = jsyaml.dump(jsonObject, { indent: 2 });
-                } catch (e) {
-                    result = "Invalid JSON input";
-                }
-            } else if (conversionType === "fromYaml") {
-                try {
-                    const yamlObject = jsyaml.load(userInput);
-                    result = JSON.stringify(yamlObject, null, 2);
-                } catch (e) {
-                    result = "Invalid YAML input";
-                }
-            }
-            document.getElementById("resultPanel").innerText = result;
-            document.getElementById("copyButton").disabled = false;
-        });
-
-        // Reset functionality
-        document.getElementById("resetButton").addEventListener("click", function() {
-            document.getElementById("userInput").value = "";
-            document.getElementById("resultPanel").innerText = "";
-            document.getElementById("copyButton").disabled = true;
-        });
+        };
     </script>
 </body>
 </html>
