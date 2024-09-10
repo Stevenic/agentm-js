@@ -4,7 +4,7 @@ import path from 'path';
 let _settings: Partial<Settings>|undefined;
 
 export interface Settings {
-    openaiApiKey: string;
+    serviceApiKey: string;
     model: string;
     maxTokens: number;
     imageQuality: 'standard' | 'hd';
@@ -13,9 +13,9 @@ export interface Settings {
 }
 
 export const DefaultSettings: Settings = {
-    openaiApiKey: '',
-    model: 'gpt-4o-2024-08-06',
-    maxTokens: 12000,
+    serviceApiKey: '',
+    model: '',
+    maxTokens: 8000,
     imageQuality: 'standard',
     instructions: '',
     logCompletions: false
@@ -23,7 +23,7 @@ export const DefaultSettings: Settings = {
 
 export async function hasConfiguredSettings(folder: string): Promise<boolean> {
     const settings = await loadSettings(folder);
-    if (typeof settings.openaiApiKey !== 'string' || settings.openaiApiKey.length == 0) {
+    if (typeof settings.serviceApiKey !== 'string' || settings.serviceApiKey.length == 0) {
         return false;
     }
     if (typeof settings.model !== 'string' || settings.model.length == 0) {

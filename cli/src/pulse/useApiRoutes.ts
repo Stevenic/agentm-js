@@ -51,7 +51,7 @@ export function useApiRoutes(config: PulseConfig, app: Application): void {
             }
 
             // Generate image
-            const { openaiApiKey, imageQuality } = await loadSettings(config.pagesFolder);
+            const { serviceApiKey: openaiApiKey, imageQuality } = await loadSettings(config.pagesFolder);
             const response = await openaiGenerateImage({ apiKey: openaiApiKey, prompt, shape, quality: imageQuality, style });
             if (response.completed) {
                 res.json(response.value);

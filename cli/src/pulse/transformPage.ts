@@ -1,4 +1,4 @@
-import { AgentArgs, AgentCompletion, generateObject, JsonSchema } from "agentm-core";
+import { AgentArgs, AgentCompletion, generateObject, JsonSchema, SystemMessage, UserMessage } from "agentm-core";
 
 export interface TransformPageArgs extends AgentArgs {
     pageState: string;
@@ -8,6 +8,41 @@ export interface TransformPageArgs extends AgentArgs {
 }
 
 export async function transformPage(args: TransformPageArgs): Promise<AgentCompletion<string>> {
+    // Provide additional context
+    const { pageState, message, maxTokens, completePrompt } = args;
+
+    // Define system message
+    const system: SystemMessage = {
+        role: 'system',
+        content: `<CURRENT_PAGE>\n${pageState}\n\n<SERVER_APIS>\n${serverAPIs}\n\n<USER_MESSAGE>\n${message}`
+    };
+
+    // Create prompt
+    const instructions = args.instructions ? `\n\n<INSTRUCTIONS>\n${args.instructions}` : '';
+    const prompt: UserMessage = {
+        role: 'user',
+        content: `${goal}${instructions}`
+    };
+
+    // Complete prompt
+    const result = await completePrompt({ prompt, system, maxTokens });
+    if (result.completed) {
+        // Find html content
+        let start = result.value.indexOf(`<!DOCTYPE`);
+        start = start >= 0 ? start : result.value.indexOf('<html');
+        const end = result.value.lastIndexOf('</html>');
+        if (start >= 0 && end >= start) {
+            const value = result.value.substring(start, end + 7);
+            return { completed: true, value };
+        } else {
+            return { completed: false, error: new Error('Failed to find html content') };
+        }
+    } else {
+        return { completed: false, error: result.error };
+    }
+}
+
+export async function transformPageAsObject(args: TransformPageArgs): Promise<AgentCompletion<string>> {
     // Provide additional context
     const { pageState, message, maxTokens, instructions, completePrompt, shouldContinue } = args;
     const context = `<CURRENT_PAGE>\n${pageState}\n\n<SERVER_APIS>\n${serverAPIs}\n\n<USER_MESSAGE>\n${message}`;

@@ -3,36 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgentM Pulse</title>
+    <title>AgentM - Settings</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #1e1e1e; color: #fff; height: 100vh; display: flex; }
-        .chat-panel { width: 30%; background: #2b2b2b; padding: 10px; display: flex; flex-direction: column; }
-        .chat-header { font-size: 24px; padding: 10px; background: #3a3a3a; text-align: center; border-bottom: 1px solid #444; }
-        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 10px; margin-top: 10px; background: #2b2b2b; border: 1px solid #444; }
-        .chat-message { margin-bottom: 10px; padding: 8px; background: #4a4a4a; border-radius: 5px; }
-        .chat-message p:not(:last-child) { margin-bottom: 1em; }
-        .chat-message p strong { font-weight: bolder; }
-        .chat-message p code { background: #3a3a3a; padding: 2px 4px; border-radius: 3px; }
-        .link-group { display: flex; justify-content: flex-end; margin-top: 5px; margin-bottom: 5px; }
-        .link-group a { font-size: 12px; color: #aaa; text-decoration: none; margin-left: 10px; }
-        .link-group a:hover { color: #ccc; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #e0e0e0; height: 100vh; display: flex; }
+        .chat-panel { width: 30%; background: #2a2a2a; box-shadow: 0 0 10px rgba(0,0,0,0.3); padding: 20px; display: flex; flex-direction: column; }
+        .chat-header { font-size: 24px; padding: 10px; background: #3a7bc8; color: white; text-align: center; border-radius: 10px 10px 0 0; }
+        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 15px; margin-top: 10px; background: #333; border-radius: 10px; }
+        .chat-message { margin-bottom: 15px; padding: 10px; background: #444; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .chat-message p { margin-bottom: 5px; line-height: 1.4; }
+        .chat-message p strong { font-weight: 600; color: #4a90e2; }
+        .chat-message p code { background: #555; padding: 2px 4px; border-radius: 3px; font-family: 'Courier New', Courier, monospace; color: #e0e0e0; }
+        .link-group { display: flex; justify-content: space-between; margin: 15px 0; }
+        .link-group a { font-size: 14px; color: #4a90e2; text-decoration: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s; }
+        .link-group a:hover { background-color: #3a3a3a; }
         form { display: flex; flex-direction: column; width: 100%; }
-        .chat-input, .chat-submit { padding: 10px; border: none; border-radius: 5px; width: 100%; }
-        .chat-input { background: #444; color: white; margin-bottom: 10px; }
-        .chat-submit { background: #5a5a5a; cursor: pointer; }
-        .chat-submit:hover { background: #6a6a6a; }
-        .viewer-panel { width: 70%; padding: 10px; background: #1e1e1e; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; border-left: 1px solid #444; text-align: center; }
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        .chat-input, .chat-submit { padding: 12px; border: none; border-radius: 25px; width: 100%; font-size: 14px; }
+        .chat-input { background: #444; color: #e0e0e0; margin-bottom: 10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); }
+        .chat-submit { background: #3a7bc8; color: white; cursor: pointer; transition: background-color 0.3s; }
+        .chat-submit:hover { background: #2a6cb8; }
+        .viewer-panel { width: 70%; padding: 30px; background: #2a2a2a; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: -5px 0 10px rgba(0,0,0,0.2); }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 26, 26, 0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .spinner { border: 8px solid #333; border-top: 8px solid #3a7bc8; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .dialog-title { font-size: 24px; color: #f0f0f0; background: #3a3a3a; padding: 10px; border-bottom: 1px solid #444; width: 100%; text-align: center; }
-        .dialog-content { font-size: 18px; color: #ccc; padding: 10px; margin-top:10px; flex-grow: 1; width: 100%; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #ccc; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #444; background: #333; color: #fff; }
-        .form-group textarea { resize: vertical; height: 100px; }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #333; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #666; }
+        .dialog-title { font-size: 24px; color: #f0f0f0; background: #3a3a3a; padding: 15px; border-bottom: 1px solid #444; width: 100%; text-align: center; border-radius: 10px 10px 0 0; }
+        .dialog-content { font-size: 16px; color: #ccc; padding: 20px; margin-top: 10px; flex-grow: 1; width: 100%; background: #333; border-radius: 0 0 10px 10px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #e0e0e0; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #555; background: #444; color: #fff; font-size: 14px; transition: all 0.3s ease; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #3a7bc8; box-shadow: 0 0 0 2px rgba(58, 123, 200, 0.2); }
+        .form-group textarea { resize: vertical; min-height: 100px; }
         .disabled { background: #555; cursor: not-allowed; }
+        .settings-form { background: #2a2a2a; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .info-text { color: #aaa; margin-top: 15px; font-size: 14px; line-height: 1.6; }
+        .info-text a { color: #4a90e2; text-decoration: none; transition: color 0.3s; }
+        .info-text a:hover { color: #3a7bc8; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
@@ -40,10 +49,10 @@
 </head>
 <body>
     <div class="chat-panel">
-        <div class="chat-header">Chat</div>
+        <div class="chat-header">AgentM Chat</div>
         <div class="chat-messages" id="chatMessages">
             <div class="chat-message">
-                <p><strong>AgentM:</strong> Please fill in all required fields in the settings form and click 'Update'. Ensure your OpenAI API Key is valid and select the model you wish to use.</p>
+                <p><strong>AgentM:</strong> Please fill in all required fields in the settings form and click 'Update'. Ensure your OpenAI or Anthropic API Key is valid and select the model you wish to use.</p>
                 <p><code>Max Output Tokens</code> controls how large of a page that can be rendered and <code>Additional Instructions</code> can be used to provide further prompt instructions for how pages should be updated.</p>
             </div>
         </div>
@@ -58,33 +67,35 @@
         </form>
     </div>
     <div class="viewer-panel" id="viewerPanel">
-        <div class="dialog-title">Settings</div>
-        <div class="dialog-content">
-            <form action="/api/settings" method="POST" id="settingsForm">
-                <div class="form-group">
-                    <label for="openaiApiKey">Open AI API Key</label>
-                    <input type="password" id="openaiApiKey" name="openaiApiKey" placeholder="Enter your API Key" required>
-                </div>
-                <div class="form-group">
-                    <label for="model">Model</label>
-                    <select id="model" name="model" required>
-                        <option value="">Select a model</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="maxTokens">Max Output Tokens</label>
-                    <input type="number" id="maxTokens" name="maxTokens" placeholder="Enter max token count" required>
-                </div>
-                <div class="form-group">
-                    <label for="instructions">Additional Instructions</label>
-                    <textarea id="instructions" name="instructions" placeholder="Enter any additional instructions"></textarea>
-                </div>
-                <button type="submit" class="chat-submit" action="/api/submit">Update</button>
-            </form>
-            <p style="color: #aaa; margin-top: 10px;">An OpenAI API Key is required which can be generated from the <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #3498db;">API Keys</a> section of the OpenAI Dashboard.</p>
+        <div class="settings-form">
+            <div class="dialog-title">Settings</div>
+            <div class="dialog-content">
+                <form action="/api/settings" method="POST" id="settingsForm">
+                    <div class="form-group">
+                        <label for="serviceApiKey">Service API Key</label>
+                        <input type="password" id="serviceApiKey" name="serviceApiKey" placeholder="Enter your API Key" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="model">Model</label>
+                        <select id="model" name="model" required>
+                            <option value="">Select a model</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxTokens">Max Output Tokens</label>
+                        <input type="number" id="maxTokens" name="maxTokens" placeholder="Enter max token count" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="instructions">Additional Instructions</label>
+                        <textarea id="instructions" name="instructions" placeholder="Enter any additional instructions"></textarea>
+                    </div>
+                    <button type="submit" class="chat-submit" action="/api/submit">Update</button>
+                </form>
+                <p class="info-text">An API Key is required which can be generated from either <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API Keys</a> or <a href="https://console.anthropic.com/settings/keys" target="_blank">Anthropic API Keys</a>.</p>
+            </div>
         </div>
     </div>
-    <div id="thoughts" style="display: none;">The user requested to clear the chat history and leave a single message with instructions for updating the settings. The chat panel now includes this request and a response from AgentM. The viewer panel remains unchanged, displaying the settings form. JavaScript will be used to disable the chat input if the configuration is not complete.</div>
+    <div id="thoughts" style="display: none;">Ask the user to update their settings.</div>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
     <script>
         // Basic chat functionality
@@ -109,12 +120,12 @@
 
         // Form validation
         document.getElementById('settingsForm').addEventListener('submit', function(event) {
-            const openaiApiKey = document.getElementById('openaiApiKey').value;
+            const serviceApiKey = document.getElementById('serviceApiKey').value;
             const model = document.getElementById('model').value;
             const maxTokens = document.getElementById('maxTokens').value;
 
-            if (!openaiApiKey || !model || !maxTokens) {
-                alert('Please fill in all fields before submitting.');
+            if (!serviceApiKey || !model || !maxTokens) {
+                alert('Please fill in all required fields before submitting.');
                 event.preventDefault();
             }
         });
@@ -124,11 +135,12 @@
         fetch('/api/settings')
             .then(response => response.json())
             .then(data => {
-                const openaiApiKey = data.openaiApiKey || '';
+                console.log('Settings:', data);
+                const serviceApiKey = data.serviceApiKey || '';
                 const model = data.model || '';
                 const maxTokens = data.maxTokens || '';
-                isConfigured = openaiApiKey && model && maxTokens;
-                document.getElementById('openaiApiKey').value = openaiApiKey;
+                isConfigured = serviceApiKey && model && maxTokens;
+                document.getElementById('serviceApiKey').value = serviceApiKey;
                 document.getElementById('model').innerHTML = data.availableModels.map(model => `<option value="${model}">${model}</option>`).join('');
                 document.getElementById('model').value = model;
                 document.getElementById('maxTokens').value = maxTokens;

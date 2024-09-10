@@ -1,7 +1,7 @@
 import { loadPageState, normalizePageName, savePageState, updatePageState } from "../pages";
 import { hasConfiguredSettings, loadSettings } from "../settings";
 import { Application } from 'express';
-import { transformPage } from "./transformPage";
+import { transformPage, transformPageAsObject } from "./transformPage";
 import { PulseConfig } from "./init";
 import { createCompletePrompt } from "./createCompletePrompt";
 import { completePrompt } from "agentm-core";
@@ -101,14 +101,14 @@ export function usePageRoutes(config: PulseConfig, app: Application): void {
             }
 
             // Get required and optional parameters
-            const { message, model } = req.body; // Extract the message from the request body
+            const { message } = req.body; // Extract the message from the request body
             if (typeof message !== 'string') {
                 res.status(400).send('Invalid or missing message parameter');
                 return;
             }
 
             // Create model instance
-            const innerCompletePrompt = await createCompletePrompt(config.pagesFolder, model);
+            const innerCompletePrompt = await createCompletePrompt(config.pagesFolder, req.body.model);
             const completePrompt: completePrompt = (args) => {
                 console.log(`SYSTEM:\n${args.system!.content}`);
                 console.log(`PROMPT:\n${args.prompt!.content}`);
@@ -117,8 +117,10 @@ export function usePageRoutes(config: PulseConfig, app: Application): void {
 
 
             // Transform and cache updated page 
-            const { maxTokens, instructions } = await loadSettings(config.pagesFolder);
-            const result = await transformPage({ pageState, message, maxTokens, instructions, completePrompt });
+            const { maxTokens, instructions, model } = await loadSettings(config.pagesFolder);
+            const result = model.startsWith('gpt-') ? 
+                await transformPageAsObject({ pageState, message, maxTokens, instructions, completePrompt }) :
+                await transformPage({ pageState, message, maxTokens, instructions, completePrompt });
             if (result.completed) {
                 updatePageState(page, result.value!);
                 res.send(result.value!);
