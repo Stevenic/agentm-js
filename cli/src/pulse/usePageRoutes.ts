@@ -110,8 +110,8 @@ export function usePageRoutes(config: PulseConfig, app: Application): void {
             // Create model instance
             const innerCompletePrompt = await createCompletePrompt(config.pagesFolder, req.body.model);
             const completePrompt: completePrompt = (args) => {
-                console.log(`SYSTEM:\n${args.system!.content}`);
-                console.log(`PROMPT:\n${args.prompt!.content}`);
+                // console.log(`SYSTEM:\n${args.system!.content}`);
+                // console.log(`PROMPT:\n${args.prompt!.content}`);
                 return innerCompletePrompt(args);
             }
 
