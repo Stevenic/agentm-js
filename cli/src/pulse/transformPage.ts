@@ -86,7 +86,8 @@ The basic layout structure of the page needs to be maintained.
 You're free to write any additional CSS or JavaScript to enhance the page.
 Write an explication of your reasoning or any hidden thoughts to the thoughts div.
 If the user asks to create something like an app, tool, game, or ui create it in the viewer panel.
-If the user asks to draw something use canvas to draw it in the viewer panel.`;
+If the user asks to draw something use canvas to draw it in the viewer panel.
+Always return the full html content of the page.`;
 
 const serverAPIs =
 `GET /api/data/:table
@@ -106,10 +107,15 @@ DELETE /api/data/:table/:id
 description: Delete a single row from a table
 response: { success: true }
 
-POST /api/generate-image
+POST /api/generate/image
 description: Generate an image based on a prompt
 request: { prompt: string, shape: 'square' | 'portrait' | 'landscape', style: 'vivid' | 'natural' }
 response: { url: string }
+
+POST /api/generate/completion
+description: Generates a text completion based on a prompt
+request: { prompt: string, temperature?: number }
+response: { answer: string, explanation: string }
 
 GET /api/pages
 description: Retrieve a list of all pages

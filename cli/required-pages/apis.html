@@ -37,11 +37,12 @@
         .api-header:hover { background: #555; }
         .api-content { display: none; margin-top: 10px; text-align: left; padding: 10px; background: #3a3a3a; border-radius: 10px; }
         .api-input { margin-top: 10px; }
-        .api-input input, .api-input textarea { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: none; background: #444; color: #fff; }
+        .api-input input, .api-input textarea, .api-input select { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: none; background: #444; color: #fff; }
         .api-input textarea { min-height: 100px; resize: vertical; }
         .api-input button { padding: 10px 15px; border: none; border-radius: 25px; background: #3a7bc8; color: #fff; cursor: pointer; transition: background-color 0.3s; }
         .api-input button:hover { background: #2a6cb8; }
         .api-output { margin-top: 10px; min-height: 200px; background: #222; color: #fff; padding: 10px; border-radius: 5px; overflow-y: auto; white-space: pre-wrap; }
+        .generated-image { max-width: 100%; height: auto; margin-top: 10px; border-radius: 5px; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
@@ -124,9 +125,41 @@
                     <div class="api-output"></div>
                 </div>
             </div>
+            <div class="api-section">
+                <div class="api-header" onclick="toggleSection(this)">POST /api/generate/image</div>
+                <div class="api-content">
+                    This operation generates an image based on a prompt. You can specify the shape and style of the image.
+                    <div class="api-input">
+                        <input type="text" placeholder="Prompt" id="imagePrompt" />
+                        <select id="imageShape">
+                            <option value="square">Square</option>
+                            <option value="portrait">Portrait</option>
+                            <option value="landscape">Landscape</option>
+                        </select>
+                        <select id="imageStyle">
+                            <option value="vivid">Vivid</option>
+                            <option value="natural">Natural</option>
+                        </select>
+                        <button onclick="generateImage(event)">Generate Image</button>
+                    </div>
+                    <div class="api-output"></div>
+                </div>
+            </div>
+            <div class="api-section">
+                <div class="api-header" onclick="toggleSection(this)">POST /api/generate/completion</div>
+                <div class="api-content">
+                    This operation generates a text completion based on a prompt. You can optionally specify the temperature for controlling randomness.
+                    <div class="api-input">
+                        <textarea placeholder="Prompt" id="completionPrompt"></textarea>
+                        <input type="number" placeholder="Temperature (optional)" id="completionTemperature" step="0.1" min="0" max="1" />
+                        <button onclick="generateCompletion(event)">Generate Completion</button>
+                    </div>
+                    <div class="api-output"></div>
+                </div>
+            </div>
         </div>
     </div>
-    <div id="thoughts" style="display: none;">Show the user operations to test various API calls to the server.</div>
+    <div id="thoughts" style="display: none;">I've presented the user with the list of available API's.</div>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
     <script>
         // Basic chat functionality
@@ -186,11 +219,69 @@
             .then(data => {
                 console.log('Success:', data);
                 const outputBox = event.target.parentElement.nextElementSibling;
-                outputBox.innerHTML = JSON.stringify(data, null, 2);
+                outputBox.textContent = JSON.stringify(data, null, 2);
             })
             .catch((error) => {
                 console.error('Error:', error);
                 alert('API call failed! Check console for details.');
+            });
+        }
+
+        // Function to generate image
+        function generateImage(event) {
+            event.preventDefault();
+            const prompt = document.getElementById('imagePrompt').value;
+            const shape = document.getElementById('imageShape').value;
+            const style = document.getElementById('imageStyle').value;
+            const outputBox = event.target.parentElement.nextElementSibling;
+
+            fetch('/api/generate/image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ prompt, shape, style })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                outputBox.textContent = JSON.stringify(data, null, 2);
+                if (data.url) {
+                    const img = document.createElement('img');
+                    img.src = data.url;
+                    img.alt = 'Generated Image';
+                    img.className = 'generated-image';
+                    outputBox.appendChild(img);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Image generation failed! Check console for details.');
+            });
+        }
+
+        // Function to generate completion
+        function generateCompletion(event) {
+            event.preventDefault();
+            const prompt = document.getElementById('completionPrompt').value;
+            const temperature = document.getElementById('completionTemperature').value;
+            const outputBox = event.target.parentElement.nextElementSibling;
+
+            fetch('/api/generate/completion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ prompt, temperature: parseFloat(temperature) || undefined })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                outputBox.textContent = JSON.stringify(data, null, 2);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Completion generation failed! Check console for details.');
             });
         }
     </script>

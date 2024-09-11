@@ -1,5 +1,7 @@
 import OpenAI from "openai";
 import { AgentCompletion, RequestError } from "agentm-core";
+import { loadFile } from "../files";
+import path from "path";
 
 /**
  * Arguments to configure an OpenAI chat model.
@@ -35,7 +37,19 @@ export interface GeneratedImage {
     url: string;
 }
 
-export async function openaiGenerateImage(args: OpenaiGenerateImageArgs): Promise<AgentCompletion<GeneratedImage>> {
+export function generateDefaultImage(): Promise<AgentCompletion<GeneratedImage>> {
+    if (!_defaultImage) {
+        _defaultImage = new Promise<AgentCompletion<GeneratedImage>>(async resolve => {
+            const file = await loadFile(path.join(__dirname, '../../defaultImage.json'));
+            const value = JSON.parse(file) as GeneratedImage;
+            resolve({ completed: true, value });
+        });
+    }
+
+    return _defaultImage;
+}
+
+export async function generateImage(args: OpenaiGenerateImageArgs): Promise<AgentCompletion<GeneratedImage>> {
     const { apiKey, prompt, shape, quality, style } = args;
 
     // Create client
@@ -59,6 +73,7 @@ export async function openaiGenerateImage(args: OpenaiGenerateImageArgs): Promis
     try {
         const response = await client.images.generate({
             model: "dall-e-3",
+            response_format: "b64_json",
             n: 1,
             prompt,
             size,
@@ -66,8 +81,9 @@ export async function openaiGenerateImage(args: OpenaiGenerateImageArgs): Promis
             style
         });
     
-        if (response.data.length > 0 && response.data[0].url !== undefined) {
-            return { completed: true, value: { url: response.data[0].url } };
+        if (response.data.length > 0 && response.data[0].b64_json !== undefined) {
+            const url = `data:image/png;base64,${response.data[0].b64_json}`
+            return { completed: true, value: { url } };
         } else {
             return { completed: false, error: new Error('No image URL returned') };
         }
@@ -81,3 +97,5 @@ export async function openaiGenerateImage(args: OpenaiGenerateImageArgs): Promis
         return { completed: false, error };
     }
 }
+
+let _defaultImage: Promise<AgentCompletion<GeneratedImage>> | undefined;

@@ -1,7 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { completePrompt, PromptCompletion, PromptCompletionArgs, PromptCompletionDetails, PromptCompletionFinishReason } from "../types";
+import { AssistantMessage, completePrompt, PromptCompletion, PromptCompletionArgs, PromptCompletionDetails, PromptCompletionFinishReason } from "../types";
 import { RequestError } from "../RequestError";
-import * as dJSON from 'dirty-json';
 
 /**
  * Arguments to configure an Anthropic chat model.
@@ -55,6 +54,11 @@ export interface AnthropicCompletionArgs extends PromptCompletionArgs {
      * Model to use for completions.
      */
     model: string;
+
+    /**
+     * Optional. Prefills an assistants response to help increase the reliability of the response.
+     */
+    prefill?: AssistantMessage;
 }
 
 /**
@@ -84,7 +88,7 @@ export function anthropic(args: AnthropicArgs): completePrompt<any> {
  * @returns The completion result.
  */
 export async function anthropicChatCompletion(args: AnthropicCompletionArgs): Promise<PromptCompletion<string>> {
-    const { client, model, prompt, history } = args;
+    const { client, model, prompt, history, prefill } = args;
 
     try {
         // Populate messages
@@ -93,6 +97,16 @@ export async function anthropicChatCompletion(args: AnthropicCompletionArgs): Pr
             messages.push(...history);
         }
         messages.push(prompt);
+
+        // Add prefill message if provided
+        if (prefill) {
+            messages.push(prefill);
+        }
+
+        // Ensure messages start with a user message
+        if (messages.length == 0 || messages[0].role != 'user') {
+            messages.unshift({ role: 'user', content: 'hello' });
+        }
 
         // Generate completion
         const system = args.system?.content;
@@ -126,6 +140,12 @@ export async function anthropicChatCompletion(args: AnthropicCompletionArgs): Pr
  * @returns The completion result.
  */
 export async function anthropicJsonChatCompletion<TValue>(args: AnthropicCompletionArgs): Promise<PromptCompletion<TValue>> {
+    // Create prefill message
+    args.prefill = {
+        role: 'assistant',
+        content: '{',
+    };
+
     // First complete the prompt as normal
     const response = await anthropicChatCompletion(args);
     if (!response.completed) {
@@ -134,17 +154,16 @@ export async function anthropicJsonChatCompletion<TValue>(args: AnthropicComplet
 
     // Parse the JSON response
     try {
-        // Find the JSON content
-        const text = response.value ?? '';
-        const start = text.indexOf('{');
-        const end = text.lastIndexOf('}');
-        if (start === -1 || end === -1 || start >= end) {
+        // Find end of JSON content
+        const code = '{' + (response.value ?? '}');
+        const end = code.lastIndexOf('}');
+        if (end < 0) {
             throw new Error('Invalid JSON response');
         }
 
         // Parse the JSON content
-        const json = text.substring(start, end + 1);
-        const value = dJSON.parse(json) as TValue;
+        const json = code.substring(0, end + 1);
+        const value = JSON.parse(json) as TValue;
         return { completed: true, value, details: response.details };
     } catch (err: unknown) {
         return { completed: false, error: new Error(`Error parsing the response: ${err}`) };

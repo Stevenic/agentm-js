@@ -1,4 +1,4 @@
-import { AgentArgs, ExplainedAnswer, JsonSchema, PromptCompletion, SystemMessage, UserMessage } from "../types";
+import { AgentArgs, ExplainedAnswer, JsonSchema, Message, PromptCompletion, SystemMessage, UserMessage } from "../types";
 import { composePrompt } from "../composePrompt";
 
 /**
@@ -9,6 +9,11 @@ export interface ChainOfThoughtArgs extends AgentArgs {
      * Question to ask the model.
      */
     question: string;
+
+    /**
+     * Optional. Array of previous messages to provide context to the model.
+     */
+    history?: Message[];
 
     /**
      * Optional. Temperature the model should use for sampling completions.
@@ -39,7 +44,7 @@ export interface ChainOfThoughtArgs extends AgentArgs {
  * @returns Answer to the question.
  */
 export async function chainOfThought(args: ChainOfThoughtArgs): Promise<PromptCompletion<ExplainedAnswer>> {
-    const { question, maxTokens, completePrompt } = args;
+    const { question, history, maxTokens, completePrompt } = args;
     const temperature = args.temperature ?? 0.0;
 
     // Compose system message
@@ -54,7 +59,7 @@ export async function chainOfThought(args: ChainOfThoughtArgs): Promise<PromptCo
         role: 'user',
         content: question
     };
-    return await completePrompt({prompt, system, jsonSchema, temperature, maxTokens});
+    return await completePrompt({prompt, system, history, jsonSchema, temperature, maxTokens});
 }
 
 const jsonSchema: JsonSchema = {
