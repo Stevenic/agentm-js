@@ -45,7 +45,7 @@
     <div class="chat-panel">
         <div class="chat-header">AgentM Chat</div>
         <div class="chat-messages" id="chatMessages">
-            <div class="chat-message"><p><strong>AgentM:</strong> here's all of the created pages.</p></div>
+            <div class="chat-message"><p><strong>AgentM:</strong> Here are all of the created pages.</p></div>
         </div>
         <div class="link-group">
             <a href="#" id="saveLink">Save</a>
@@ -66,6 +66,7 @@
                 <a href="/pages" class="page-link">Pages</a>
                 <a href="/settings" class="page-link">Settings</a>
                 <a href="/apis" class="page-link">API Explorer</a>
+                <a href="/scripts" class="page-link">Script Editor</a>
             </div>
         </div>
         <div class="page-category">
@@ -81,7 +82,7 @@
             </div>
         </div>
     </div>
-    <div id="thoughts" style="display: none;">Present the user with the list of configured pages.</div>
+    <div id="thoughts" style="display: none;">I've presented the user with a list of created pages.</div>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
     <script>
         // Basic chat functionality
@@ -115,7 +116,7 @@
                 const templatesList = document.getElementById('templatesList');
                 customPagesList.innerHTML = ''; // Clear existing content
                 templatesList.innerHTML = ''; // Clear existing content
-                const systemPages = ['home', 'pages', 'settings', 'apis'];
+                const systemPages = ['home', 'pages', 'settings', 'apis', 'scripts'];
                 data.forEach(page => {
                     const pageLink = document.createElement('a');
                     pageLink.href = `/${page}`;

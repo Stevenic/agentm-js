@@ -2,6 +2,8 @@ import { Application } from 'express';
 import { PulseConfig } from "./init";
 import { checkIfExists, deleteFile, ensureFolderExists, listFiles, loadFile, saveFile } from "../files";
 import path from "path";
+import { v4 } from "uuid";
+import { clearCachedScripts } from '../scripts';
 
 export function useDataRoutes(config: PulseConfig, app: Application): void {
     // Retrieve all rows from a table
@@ -38,20 +40,24 @@ export function useDataRoutes(config: PulseConfig, app: Application): void {
             row.id = id;
             res.json(row);
         } catch (err: unknown) {
-            res.json(undefined);
+            res.json({});
         }
     });
 
-    // Save a single row to a table
-    app.post('/api/data/:table/:id', async (req, res) => {
-        const { table, id } = req.params;
+    // Upsert a single row into a table
+    app.post('/api/data/:table', async (req, res) => {
+        const { table } = req.params;
+        const id = req.body.id ?? v4();
         const folder = await tableFolder(config, table);
         const file = recordFile(folder, id);
         try {
             const row = { ...req.body, id };
             await ensureFolderExists(folder);
             await saveFile(file, JSON.stringify(row, null, 4));
-            res.json({ success: true });
+            if (table === 'scripts') {
+                clearCachedScripts();
+            }
+            res.json(row);
         } catch (err: unknown) {
             console.error(err);
             res.status(500).send((err as Error).message);
@@ -66,6 +72,11 @@ export function useDataRoutes(config: PulseConfig, app: Application): void {
         try {
             if (await checkIfExists(file)) {
                 await deleteFile(file);
+
+                // Clear cached scripts
+                if (table === 'scripts') {
+                    clearCachedScripts();
+                }
             }
             res.json({ success: true });
         } catch (err: unknown) {

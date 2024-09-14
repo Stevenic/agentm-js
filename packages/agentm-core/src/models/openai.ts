@@ -85,6 +85,17 @@ export function openai(args: OpenaiArgs): completePrompt<any> {
     }
 
     return  (args) => {
+        // Check for o1 models and patch args as needed
+        if (model.startsWith('o1-')) {
+            args.temperature = 1;
+            if (args.system) {
+                // Prepend the system message to the prompt
+                args.prompt.content = `${args.system.content}\n${args.prompt.content}`;
+                args.system = undefined;
+            }
+        }
+
+        // Route to the appropriate completion function
         if (args.jsonSchema && canUseStructuredOutputs) {
             return openaiStructuredOutputCompletion({ client, model, temperature, maxTokens, ...args });
         } else if (args.jsonMode || args.jsonSchema) { 
@@ -136,7 +147,7 @@ export async function openaiChatCompletion(args: OpenAICompletionArgs): Promise<
             model,
             messages,
             temperature: args.temperature ?? 0.0,
-            max_tokens: args.maxTokens ?? 1000,
+            max_completion_tokens: args.maxTokens ?? 1000,
         });
 
         // Get usage details
@@ -177,12 +188,14 @@ export async function openaiJsonChatCompletion<TValue>(args: OpenAICompletionArg
         }
         messages.push(prompt);
 
+        // Identify max_tokens parameter to use
+
         // Generate completion
         const response = await client.chat.completions.create({
             model,
             messages,
             temperature: args.temperature ?? 0.0,
-            max_tokens: args.maxTokens ?? 1000,
+            max_completion_tokens: args.maxTokens ?? 1000,
             response_format: { type: "json_object" },
         });
 
@@ -248,7 +261,7 @@ export async function openaiStructuredOutputCompletion<TValue>(args: OpenAICompl
             model,
             messages,
             temperature: args.temperature ?? 0.0,
-            max_tokens: args.maxTokens ?? 1000,
+            max_completion_tokens: args.maxTokens ?? 1000,
             response_format: { 
                 type: "json_schema",
                 json_schema: {

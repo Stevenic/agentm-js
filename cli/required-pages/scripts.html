@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentM - Scripts</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #e0e0e0; height: 100vh; display: flex; }
+        .chat-panel { width: 30%; background: #2a2a2a; box-shadow: 0 0 10px rgba(0,0,0,0.3); padding: 20px; display: flex; flex-direction: column; }
+        .chat-header { font-size: 24px; padding: 10px; background: #3a7bc8; color: white; text-align: center; border-radius: 10px 10px 0 0; }
+        .chat-messages { flex-grow: 1; overflow-y: auto; padding: 15px; margin-top: 10px; background: #333; border-radius: 10px; }
+        .chat-message { margin-bottom: 15px; padding: 10px; background: #444; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .chat-message p { margin-bottom: 5px; line-height: 1.4; }
+        .chat-message p strong { font-weight: 600; color: #4a90e2; }
+        .chat-message p code { background: #555; padding: 2px 4px; border-radius: 3px; font-family: 'Courier New', Courier, monospace; color: #e0e0e0; }
+        .link-group { display: flex; justify-content: space-between; margin: 15px 0; }
+        .link-group a { font-size: 14px; color: #4a90e2; text-decoration: none; padding: 5px 10px; border-radius: 5px; transition: background-color 0.3s; }
+        .link-group a:hover { background-color: #3a3a3a; }
+        form { display: flex; flex-direction: column; width: 100%; }
+        .chat-input, .chat-submit { padding: 12px; border: none; border-radius: 25px; width: 100%; font-size: 14px; }
+        .chat-input { background: #444; color: #e0e0e0; margin-bottom: 10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); }
+        .chat-submit { background: #3a7bc8; color: white; cursor: pointer; transition: background-color 0.3s; }
+        .chat-submit:hover { background: #2a6cb8; }
+        .viewer-panel { width: 70%; padding: 20px; background: #2a2a2a; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; box-shadow: -5px 0 10px rgba(0,0,0,0.2); }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26, 26, 26, 0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .spinner { border: 8px solid #333; border-top: 8px solid #3a7bc8; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #333; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #666; }
+        .application-title { font-size: 24px; color: white; background: #3a7bc8; padding: 10px; width: 100%; text-align: center; border-radius: 10px 10px 0 0; }
+        .application-content { font-size: 18px; color: #ccc; padding: 20px; margin-top: 10px; flex-grow: 1; width: 100%; background: #333; border-radius: 0 0 10px 10px; display: flex; }
+        .script-list { width: 30%; border-right: 1px solid #444; padding-right: 20px; }
+        .script-list ul { list-style-type: none; }
+        .script-list li { padding: 10px; cursor: pointer; transition: background-color 0.3s; }
+        .script-list li:hover { background-color: #444; }
+        .script-list li.active { background-color: #3a7bc8; color: white; }
+        .add-script-btn { margin-top: 20px; padding: 10px; background-color: #4CAF50; color: white; border: none; cursor: pointer; width: 100%; }
+        .script-detail { width: 70%; padding-left: 20px; }
+        .script-detail input, .script-detail select { width: 100%; padding: 10px; margin-bottom: 10px; background-color: #444; color: #e0e0e0; border: none; }
+        .save-script-btn { padding: 10px; background-color: #3a7bc8; color: white; border: none; cursor: pointer; width: 100%; }
+        .delete-script-btn { padding: 10px; background-color: #ff4444; color: white; border: none; cursor: pointer; width: 100%; margin-top: 10px; }
+        .placeholder-message { text-align: center; color: #888; padding: 20px; }
+        .error-message { color: #ff6b6b; font-size: 14px; margin-top: 5px; display: none; }
+        .instructions { margin-top: 20px; padding: 15px; background: #3a3a3a; border-radius: 5px; font-size: 13px; line-height: 1.6; color: #aaa; }
+        .instructions h3 { margin-bottom: 8px; color: #4a90e2; font-size: 15px; }
+        .instructions p { margin-bottom: 10px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/14.1.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.1.0/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="chat-panel">
+        <div class="chat-header">AgentM Chat</div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message"><p><strong>AgentM:</strong> Add or modify scripts that can be executed using the <code>/api/scripts/:id</code> API.</p></div>
+        </div>
+        <div class="link-group">
+            <a href="#" id="saveLink">Save</a>
+            <a href="/pages" id="pagesLink">Pages</a>
+            <a href="#" id="resetLink">Reset</a>
+        </div>
+        <form action="/" method="POST" id="chatForm">
+            <input type="text" class="chat-input" id="chatInput" name="message" placeholder="Type a message...">
+            <button type="submit" class="chat-submit">Send</button>
+        </form>
+    </div>
+    <div class="viewer-panel" id="viewerPanel">
+        <div class="application-title">Script Editor</div>
+        <div class="application-content">
+            <div class="script-list">
+                <ul id="scriptList">
+                    <!-- Scripts will be loaded here -->
+                </ul>
+                <button class="add-script-btn">Add New Script</button>
+            </div>
+            <div class="script-detail">
+                <div id="placeholderMessage" class="placeholder-message">
+                    Select an existing script to edit or add a new one using the "Add New Script" button.
+                </div>
+                <input type="text" id="scriptId" placeholder="Script ID" value="" style="display: none;">
+                <select id="scriptType" style="display: none;">
+                    <option value="command">Command</option>
+                </select>
+                <input type="text" id="scriptCommand" placeholder="Script Command" style="display: none;">
+                <input type="text" id="scriptDescription" placeholder="Usage Description (optional)" style="display: none;">
+                <input type="text" id="scriptVariables" placeholder="Variables (optional, e.g., { city: string })" style="display: none;">
+                <div id="commandError" class="error-message">Script Command is required.</div>
+                <button class="save-script-btn" style="display: none;">Save Changes</button>
+                <button class="delete-script-btn" style="display: none;">Delete Script</button>
+                <div class="instructions">
+                    <h3>Understanding AgentM Scripts</h3>
+                    <p>Scripts in AgentM are powerful tools that allow you to define custom terminal commands for various tasks. When AgentM executes a script, it runs the command and captures the console output, which is then returned for further processing or analysis.</p>
+                    
+                    <h3>Creating Effective Scripts</h3>
+                    <p>When writing a script, you can use any valid terminal command. For added flexibility, you can include {{variable}} placeholders, which AgentM will replace with actual values during execution.</p>
+                    
+                    <h3>Example: Weather Forecast Script</h3>
+                    <p>Here's an example of an interesting script that AgentM could use:</p>
+                    <p><code>curl wttr.in/{{city}}?format=3</code></p>
+                    <p>This script fetches a concise weather forecast for a specified city. AgentM can call this script with different city names to get up-to-date weather information.</p>
+                    
+                    <h3>Tips for Script Writing</h3>
+                    <p>1. Keep commands concise and focused on a single task.</p>
+                    <p>2. Use variables for dynamic inputs to make scripts more versatile.</p>
+                    <p>3. Consider potential errors and how to handle them.</p>
+                    <p>4. Test your scripts thoroughly to ensure they work as expected.</p>
+                    <p>5. Provide a clear and concise usage description to help others understand how to use your script.</p>
+                    <p>6. Define the expected variables in the Variables field to document the script's requirements.</p>
+                    
+                    <h3>Using the Description Field</h3>
+                    <p>The Description field allows you to provide a brief explanation of what AgentM can use your script for.</p>
+                    
+                    <h3>Defining Variables</h3>
+                    <p>Use the Variables field to specify any input parameters your script expects. Format it as a JSON object, e.g., { city: string, days?: number }. This helps AgentM know what inputs it needs to provide when running your script.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="thoughts" style="display: none;">I've show the user a list of available scripts.</div>
+    <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
+    <script>
+        // Basic chat functionality
+        document.getElementById("chatInput").focus();
+        document.getElementById("chatForm").addEventListener('submit', () => {
+            document.getElementById("loadingOverlay").style.display = 'flex';
+            document.getElementById("chatForm").action = window.location.pathname;
+        });
+        document.getElementById("saveLink").addEventListener("click", function() {
+            const pageName = prompt("Enter the name of the page to save as:");
+            if (pageName) {
+                window.location.href = `${window.location.pathname}/save?name=${encodeURIComponent(pageName)}`;
+            }
+        });
+        document.getElementById("resetLink").addEventListener("click", function() {
+            window.location.href = `${window.location.pathname}/reset`;
+        });
+        window.onload = function() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTo({
+                top: chatMessages.scrollHeight,
+                behavior: 'smooth'
+            });
+        };
+
+        // Script Editor Functionality
+        const scriptList = document.getElementById('scriptList');
+        const scriptId = document.getElementById('scriptId');
+        const scriptType = document.getElementById('scriptType');
+        const scriptCommand = document.getElementById('scriptCommand');
+        const scriptDescription = document.getElementById('scriptDescription');
+        const scriptVariables = document.getElementById('scriptVariables');
+        const addScriptBtn = document.querySelector('.add-script-btn');
+        const saveScriptBtn = document.querySelector('.save-script-btn');
+        const deleteScriptBtn = document.querySelector('.delete-script-btn');
+        const placeholderMessage = document.getElementById('placeholderMessage');
+        const commandError = document.getElementById('commandError');
+
+        let isNewScript = false;
+
+        function showScriptDetails() {
+            placeholderMessage.style.display = 'none';
+            scriptId.style.display = 'block';
+            scriptType.style.display = 'block';
+            scriptCommand.style.display = 'block';
+            scriptDescription.style.display = 'block';
+            scriptVariables.style.display = 'block';
+            saveScriptBtn.style.display = 'block';
+            deleteScriptBtn.style.display = isNewScript ? 'none' : 'block';
+        }
+
+        function hideScriptDetails() {
+            placeholderMessage.style.display = 'block';
+            scriptId.style.display = 'none';
+            scriptType.style.display = 'none';
+            scriptCommand.style.display = 'none';
+            scriptDescription.style.display = 'none';
+            scriptVariables.style.display = 'none';
+            saveScriptBtn.style.display = 'none';
+            deleteScriptBtn.style.display = 'none';
+            commandError.style.display = 'none';
+        }
+
+        function formatId(id) {
+            return id.toLowerCase().replace(/\s+/g, '-');
+        }
+
+        function loadScripts() {
+            fetch('/api/data/scripts')
+                .then(response => response.json())
+                .then(scripts => {
+                    scriptList.innerHTML = '';
+                    scripts.forEach(script => {
+                        const li = document.createElement('li');
+                        li.textContent = script.id;
+                        li.dataset.id = script.id;
+                        li.dataset.type = script.type;
+                        li.dataset.command = script.command;
+                        li.dataset.description = script.description || '';
+                        li.dataset.variables = script.variables || '';
+                        scriptList.appendChild(li);
+                    });
+                })
+                .catch(error => console.error('Error loading scripts:', error));
+        }
+
+        function saveScript(script) {
+            fetch('/api/data/scripts')
+                .then(response => response.json())
+                .then(scripts => {
+                    const existingScript = scripts.find(s => s.id === script.id);
+                    if (existingScript && isNewScript) {
+                        if (confirm('A script with this ID already exists. Do you want to overwrite it?')) {
+                            performSave(script);
+                        }
+                    } else {
+                        performSave(script);
+                    }
+                })
+                .catch(error => console.error('Error checking existing scripts:', error));
+        }
+
+        function performSave(script) {
+            fetch('/api/data/scripts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(script),
+            })
+                .then(response => response.json())
+                .then(savedScript => {
+                    loadScripts();
+                    isNewScript = false;
+                    setTimeout(() => {
+                        const newScriptElement = document.querySelector(`[data-id="${savedScript.id}"]`);
+                        if (newScriptElement) {
+                            newScriptElement.click();
+                        }
+                    }, 100);
+                })
+                .catch(error => console.error('Error saving script:', error));
+        }
+
+        function deleteScript(id) {
+            if (confirm('Are you sure you want to delete this script?')) {
+                fetch(`/api/data/scripts/${id}`, {
+                    method: 'DELETE',
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            loadScripts();
+                            hideScriptDetails();
+                        } else {
+                            console.error('Failed to delete script.');
+                        }
+                    })
+                    .catch(error => console.error('Error deleting script:', error));
+            }
+        }
+
+        scriptList.addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI') {
+                document.querySelectorAll('.script-list li').forEach(li => li.classList.remove('active'));
+                e.target.classList.add('active');
+                showScriptDetails();
+                scriptId.value = e.target.dataset.id;
+                scriptType.value = e.target.dataset.type || 'command';
+                scriptCommand.value = e.target.dataset.command || '';
+                scriptDescription.value = e.target.dataset.description || '';
+                scriptVariables.value = e.target.dataset.variables || '';
+                commandError.style.display = 'none';
+                isNewScript = false;
+                deleteScriptBtn.style.display = 'block';
+            }
+        });
+
+        addScriptBtn.addEventListener('click', () => {
+            const newId = formatId(`script-${Date.now()}`);
+            showScriptDetails();
+            scriptId.value = newId;
+            scriptType.value = 'command';
+            scriptCommand.value = '';
+            scriptDescription.value = '';
+            scriptVariables.value = '';
+            commandError.style.display = 'none';
+            document.querySelectorAll('.script-list li').forEach(li => li.classList.remove('active'));
+            isNewScript = true;
+            deleteScriptBtn.style.display = 'none';
+        });
+
+        saveScriptBtn.addEventListener('click', () => {
+            if (!scriptCommand.value.trim()) {
+                commandError.style.display = 'block';
+                return;
+            }
+
+            const script = {
+                id: formatId(scriptId.value),
+                type: scriptType.value,
+                command: scriptCommand.value,
+                description: scriptDescription.value.trim() || undefined,
+                variables: scriptVariables.value.trim() || undefined,
+            };
+
+            saveScript(script);
+        });
+
+        deleteScriptBtn.addEventListener('click', () => {
+            const id = scriptId.value;
+            if (id) {
+                deleteScript(id);
+            }
+        });
+
+        scriptId.addEventListener('input', (e) => {
+            e.target.value = formatId(e.target.value);
+        });
+
+        scriptCommand.addEventListener('input', () => {
+            commandError.style.display = 'none';
+        });
+
+        // Load scripts when the page loads
+        loadScripts();
+
+        // Initialize with empty fields and show placeholder
+        hideScriptDetails();
+    </script>
+</body>
+</html>

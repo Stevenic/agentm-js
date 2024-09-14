@@ -117,10 +117,11 @@ export function usePageRoutes(config: PulseConfig, app: Application): void {
 
 
             // Transform and cache updated page 
+            const pagesFolder = config.pagesFolder;
             const { maxTokens, instructions, model } = await loadSettings(config.pagesFolder);
             const result = model.startsWith('gpt-') ? 
-                await transformPageAsObject({ pageState, message, maxTokens, instructions, completePrompt }) :
-                await transformPage({ pageState, message, maxTokens, instructions, completePrompt });
+                await transformPageAsObject({ pagesFolder, pageState, message, maxTokens, instructions, completePrompt }) :
+                await transformPage({ pagesFolder, pageState, message, maxTokens, instructions, completePrompt });
             if (result.completed) {
                 updatePageState(page, result.value!);
                 res.send(result.value!);

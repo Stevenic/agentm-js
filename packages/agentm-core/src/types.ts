@@ -121,6 +121,11 @@ export interface PromptCompletionArgs {
      * Optional. JSON schema used to enforce the models output.
      */
     jsonSchema?: JsonSchema;
+
+    /**
+     * Optional. Array of tools to predict.
+     */
+    tools?: JsonSchema[];
 }
 
 /**
@@ -159,6 +164,35 @@ export interface PromptCompletionDetails {
      * Reason the completion finished.
      */
     finishReason: PromptCompletionFinishReason;
+}
+
+export type OutputValueType = 'text'|'json'|'tool_call';
+
+export interface OutputValue<TValue> {
+    type: OutputValueType;
+    value: TValue;
+}
+
+export interface TextOutputValue extends OutputValue<string> {
+    type: 'text';
+    value: string;
+}
+
+export interface JsonOutputValue<TValue = {}> extends OutputValue<TValue> {
+    type: 'json';
+    value: TValue;
+}
+
+export interface ToolCallOutputValue extends OutputValue<ToolCall> {
+    type: 'tool_call';
+    value: ToolCall;
+}
+
+export interface ToolCall<TArguments = {}> {
+    id: string;
+    name: string;
+    arguments?: string;
+    parsed?: TArguments;
 }
 
 /**

@@ -1,6 +1,8 @@
 import { AgentArgs, AgentCompletion, generateObject, JsonSchema, SystemMessage, UserMessage } from "agentm-core";
+import { listScripts } from "../scripts";
 
 export interface TransformPageArgs extends AgentArgs {
+    pagesFolder: string;
     pageState: string;
     message: string;
     maxTokens: number;
@@ -8,13 +10,15 @@ export interface TransformPageArgs extends AgentArgs {
 }
 
 export async function transformPage(args: TransformPageArgs): Promise<AgentCompletion<string>> {
-    // Provide additional context
-    const { pageState, message, maxTokens, completePrompt } = args;
+    // Get list of registered scripts
+    const scripts = await listScripts(args.pagesFolder);
+    const serverScripts = scripts.length > 0 ? `<SERVER_SCRIPTS>\n${scripts}\n\n` : '';
 
     // Define system message
+    const { pageState, message, maxTokens, completePrompt } = args;
     const system: SystemMessage = {
         role: 'system',
-        content: `<CURRENT_PAGE>\n${pageState}\n\n<SERVER_APIS>\n${serverAPIs}\n\n<USER_MESSAGE>\n${message}`
+        content: `<CURRENT_PAGE>\n${pageState}\n\n<SERVER_APIS>\n${serverAPIs}\n\n${serverScripts}<USER_MESSAGE>\n${message}`
     };
 
     // Create prompt
@@ -43,9 +47,13 @@ export async function transformPage(args: TransformPageArgs): Promise<AgentCompl
 }
 
 export async function transformPageAsObject(args: TransformPageArgs): Promise<AgentCompletion<string>> {
+    // Get list of registered scripts
+    const scripts = await listScripts(args.pagesFolder);
+    const serverScripts = scripts.length > 0 ? `<SERVER_SCRIPTS>\n${scripts}\n\n` : '';
+
     // Provide additional context
     const { pageState, message, maxTokens, instructions, completePrompt, shouldContinue } = args;
-    const context = `<CURRENT_PAGE>\n${pageState}\n\n<SERVER_APIS>\n${serverAPIs}\n\n<USER_MESSAGE>\n${message}`;
+    const context = `<CURRENT_PAGE>\n${pageState}\n\n<SERVER_APIS>\n${serverAPIs}\n\n${serverScripts}<USER_MESSAGE>\n${message}`;
 
     // Generate next page
     const result = await generateObject<HtmlPage>({ goal, jsonSchema, maxTokens, context, instructions, completePrompt, shouldContinue });
@@ -98,10 +106,10 @@ GET /api/data/:table/:id
 description: Retrieve a single row from a table
 response: JSON row { id: string, ... }
 
-POST /api/data/:table/:id
-description: Save a single row to a table
-request: JSON row { id: string, ... }
-response: { success: true }
+POST /api/data/:table
+description: Replaces or adds a single row to a table and returns the row
+request: JSON row { id?: string, ... }
+response: { id: string, ... }
 
 DELETE /api/data/:table/:id
 description: Delete a single row from a table
@@ -119,4 +127,9 @@ response: { answer: string, explanation: string }
 
 GET /api/pages
 description: Retrieve a list of all pages
-response: Array of page names [string]`;
+response: Array of page names [string]
+
+POST /api/scripts/:id
+description: Execute a script with the passed in variables
+request: { [key: string]: string }
+response: string`;

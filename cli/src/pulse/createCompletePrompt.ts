@@ -4,7 +4,9 @@ import { loadSettings } from '../settings';
 export const availableModels = [
     'claude-3-5-sonnet-20240620',
     'gpt-4o-mini',
-    'gpt-4o-2024-08-06'
+    'gpt-4o-2024-08-06',
+    'o1-mini',
+    'o1-preview'
 ];
 
 export async function createCompletePrompt(pagesFolder: string, model?: string): Promise<completePrompt> {

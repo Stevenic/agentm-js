@@ -41,6 +41,7 @@
         .api-input textarea { min-height: 100px; resize: vertical; }
         .api-input button { padding: 10px 15px; border: none; border-radius: 25px; background: #3a7bc8; color: #fff; cursor: pointer; transition: background-color 0.3s; }
         .api-input button:hover { background: #2a6cb8; }
+        .api-input button:disabled { background: #666; cursor: not-allowed; }
         .api-output { margin-top: 10px; min-height: 200px; background: #222; color: #fff; padding: 10px; border-radius: 5px; overflow-y: auto; white-space: pre-wrap; }
         .generated-image { max-width: 100%; height: auto; margin-top: 10px; border-radius: 5px; }
     </style>
@@ -157,9 +158,21 @@
                     <div class="api-output"></div>
                 </div>
             </div>
+            <div class="api-section">
+                <div class="api-header" onclick="toggleSection(this)">POST /api/scripts/:id</div>
+                <div class="api-content">
+                    This operation executes a script with the specified ID and passes in the provided variables. The response contains the output of the script execution.
+                    <div class="api-input">
+                        <input type="text" placeholder="Script ID" id="scriptId" />
+                        <textarea placeholder="Variables (JSON format)" id="scriptVariables"></textarea>
+                        <button onclick="executeScript(event)">Execute Script</button>
+                    </div>
+                    <div class="api-output"></div>
+                </div>
+            </div>
         </div>
     </div>
-    <div id="thoughts" style="display: none;">I've presented the user with the list of available API's.</div>
+    <div id="thoughts" style="display: none;">I've shown the user a list of available API's.</div>
     <div id="loadingOverlay" class="loading-overlay"><div class="spinner"></div></div>
     <script>
         // Basic chat functionality
@@ -194,6 +207,8 @@
         // Function to call the server API
         function callApi(event, method, endpoint) {
             event.preventDefault();
+            const button = event.target;
+            button.disabled = true;
             const inputs = event.target.parentElement.querySelectorAll('input, textarea');
             let url = endpoint;
             let data = {};
@@ -224,12 +239,17 @@
             .catch((error) => {
                 console.error('Error:', error);
                 alert('API call failed! Check console for details.');
+            })
+            .finally(() => {
+                button.disabled = false;
             });
         }
 
         // Function to generate image
         function generateImage(event) {
             event.preventDefault();
+            const button = event.target;
+            button.disabled = true;
             const prompt = document.getElementById('imagePrompt').value;
             const shape = document.getElementById('imageShape').value;
             const style = document.getElementById('imageStyle').value;
@@ -257,12 +277,17 @@
             .catch((error) => {
                 console.error('Error:', error);
                 alert('Image generation failed! Check console for details.');
+            })
+            .finally(() => {
+                button.disabled = false;
             });
         }
 
         // Function to generate completion
         function generateCompletion(event) {
             event.preventDefault();
+            const button = event.target;
+            button.disabled = true;
             const prompt = document.getElementById('completionPrompt').value;
             const temperature = document.getElementById('completionTemperature').value;
             const outputBox = event.target.parentElement.nextElementSibling;
@@ -282,6 +307,39 @@
             .catch((error) => {
                 console.error('Error:', error);
                 alert('Completion generation failed! Check console for details.');
+            })
+            .finally(() => {
+                button.disabled = false;
+            });
+        }
+
+        // Function to execute script
+        function executeScript(event) {
+            event.preventDefault();
+            const button = event.target;
+            button.disabled = true;
+            const scriptId = document.getElementById('scriptId').value;
+            const variables = JSON.parse(document.getElementById('scriptVariables').value);
+            const outputBox = event.target.parentElement.nextElementSibling;
+
+            fetch(`/api/scripts/${scriptId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(variables)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                outputBox.textContent = JSON.stringify(data, null, 2);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Script execution failed! Check console for details.');
+            })
+            .finally(() => {
+                button.disabled = false;
             });
         }
     </script>
